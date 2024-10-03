@@ -1,5 +1,28 @@
 <!DOCTYPE html>
 <html>
-    <h1>Under Construction</h1>
+    <h1>Player Page</h1>
+    <h2>Under Construction</h2>
     <p>Please come back later</p>
+
+    <% if(name){ %>
+        <p1>Logged in as <%= name.name %></p1>
+        <button onclick="window.location.href = 'logout'">Logout</button>
+    <% } else { %>
+        <!-- Login Form -->
+        <form method="post" action="/Player">
+            <p>
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username">
+            </p>
+            <p>
+                <label for="password">Password:</label>
+                <input type="text" name="password" id="password">
+            </p>
+            <p>
+                <input type="submit" value="Login">
+            </p>
+        </form>
+    <% } %>
+
+    <button onclick="window.location.href = 'Home';">Home</button>
 </html>
