@@ -1,0 +1,213 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
+a:hover {
+
+  color: #e63946
+}
+
+a:visited {
+
+  color: inherit;
+}
+  
+:root {
+  /*
+	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+	*/
+  
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #0c1b33;
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --racing-red: #df2935;
+  --lite-red: #e63946;
+}
+
+.fira-sans {
+
+	font-family: "Fira Sans", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.racing-sans {
+
+	font-family: "Racing Sans One", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+}
+  
+#stream-overlay {
+  
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  
+  width: 100%;
+  height: 100%;
+  
+  z-index: 98;
+  background-color: aliceblue;
+  
+  opacity: 50%;
+  
+  pointer-events: none;
+}
+  
+#stream-overlay p {
+  
+  position: relative;
+  
+  top: 5%;
+  text-align: center;
+  
+  
+  color: #242424;
+}
+  
+iframe {
+  
+  position: absolute;
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  
+  width: 100%;
+  height: 100%;
+  
+}
+  
+button {
+  
+  position: absolute;
+    
+  left: 5%;
+  top: 20%;
+  
+  z-index: 99;
+}
+  
+#stream-container {
+  background-color: green;
+  z-index: 0;
+}
+
+#navbar-container {
+
+  background-color: #000411;
+
+	display: flex;
+
+	flex-direction: row;
+
+	align-items: center;
+}
+
+#navbar-container a:hover {
+
+  color: var(--racing-red)
+}
+
+
+#navbar-icon {
+
+	width: 4vw;
+
+	background-image: url(../assets/Remote_Racer_Icon.svg);
+	background-size: cover;
+
+	height: 0;
+
+	padding-bottom: 4vw;
+}
+
+#navbar-home a {
+
+	display: flex;
+
+	flex-direction: row;
+
+	align-items: center;
+
+	text-decoration: none;
+}
+
+#navbar-home a:hover {
+
+  color: var(--racing-red);
+	text-decoration: underline;
+}
+
+#navbar-home h1 {
+
+	padding-left: 0.5vw;
+
+	text-wrap: nowrap;
+}
+
+#navbar-button-menu {
+
+	margin-left: auto;
+}
+
+#navbar-button-menu a {
+
+  font-size: larger;
+
+	text-decoration: none;
+
+  padding: 1vh 1vw;
+
+  margin-right: 1vw;
+}
+
+#navbar-button-menu a:hover {
+
+	text-decoration: overline;
+}
+
+footer a:hover {
+
+  color: var(--racing-red);
+}
+
+@media only screen and (max-width: 800px) {
+
+	#navbar-icon {
+
+		width: 10vh;
+
+		padding-bottom: 10vh;
+	}
+
+	#navbar-home h1 {
+
+		padding-left: 2vw;
+	
+		text-wrap: nowrap;
+	}
+
+	#navbar-button-menu {
+
+		display: flex;
+
+		flex-direction: column;
+	}
+
+	#navbar-button-menu a {
+
+		margin-top: 1vh;
+		margin-right: 2vw;
+	}
+}

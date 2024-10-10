@@ -1,0 +1,19 @@
+<div id="navbar-container">
+
+    <div id="navbar-home">
+
+        <a href="/">
+            <div id="navbar-icon"></div>
+            <h1 class="racing-sans">Project TAGGER</h1>
+        </a>
+    </div>
+
+    <div id="navbar-button-menu">
+        <% global.navEndpoints.forEach((endpoint) => { %>
+    
+            <a class="navbar-buttons racing-sans" href="<%= endpoint %>"></a>
+    
+        <% }); %>
+    </div>
+</div>
+<script src="/scripts/frontend/test.js" defer></script>
