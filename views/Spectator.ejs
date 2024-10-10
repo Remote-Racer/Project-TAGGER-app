@@ -1,14 +1,6 @@
-<!DOCTYPE html>
-<html lang="en"></html>
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/assets/Remote_Racer_Icon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spectator</title>
-    <link rel="stylesheet" href="/styles/style.css">
-  </head>
-  <body>
-    <div id="app"></div>
+<%- include('partials/header') %>
+<body>
+    <%- include('partials/navbar') %>
     <section id="stream-container">
       <button>Help</button>
       <div id="stream-overlay">
@@ -16,6 +8,5 @@
       </div>
       <iframe id="embedded-stream" width="1280" height="720" src="https://www.youtube.com/embed/5FrhtahQiRc" title="Heavy Is The Crown ft. Linkin Park (Official Music Video) | League of Legends Worlds 2024 Anthem" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </section>
-    <!-- <script type="module" src="/src/main.ts" defer></script> -->
-  </body>
-</html>
+</body>
+<%- include('partials/footer') %>

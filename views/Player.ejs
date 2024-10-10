@@ -1,5 +1,26 @@
 <%- include('partials/header') %>
 <body>
     <%- include('partials/navbar') %>
+
+    <% if(name){ %>
+        <p1>Logged in as <%= name.name %></p1>
+        <button onclick="window.location.href = 'logout'">Logout</button>
+    <% } else { %>
+        <!-- Login Form -->
+
+        <div id="login-form-container">
+            <form id='login-form' method="post" action="/player">
+
+                <label for="username">Username:</label>
+                <input type="text" name="username" id="username">
+
+                <label for="password">Password:</label>
+                <input type="text" name="password" id="password">
+
+                <input type="submit" value="Login">
+
+            </form>
+        </div>
+    <% } %>
 </body>
 <%- include('partials/footer') %>

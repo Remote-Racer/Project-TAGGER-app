@@ -5,12 +5,12 @@ const navbarViews = {
     '/': {
         '/test': 'Test',
         '/player': 'Sign-in',
-        '/spectate': 'Spectate'
+        '/spectator': 'Spectate'
     },
     '/test': {
         '/test': 'Test',
         '/player': 'Sign-in',
-        '/spectate': 'Spectate'
+        '/spectator': 'Spectate'
     },
     '/player': {
         '/test': 'Test',
@@ -24,9 +24,7 @@ function loadNavbar() {
         let viewCandidate = `${button.attributes.getNamedItem('href').value}`;
         if (navbarViews[window.location.pathname][viewCandidate]) {
             button.innerHTML = navbarViews[window.location.pathname][viewCandidate];
-        }
-        else {
-            button.style.display = 'none';
+            button.classList.remove('deactivated');
         }
     }
 }
