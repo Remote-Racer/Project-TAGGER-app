@@ -22,8 +22,7 @@ const navbarViews: NavbarView = {
         '/spectator': 'Spectate'
     },
     '/player': {
-        '/test': 'Test',
-        '/player': 'Sign-in'
+        '/test': 'Test'
     }
 }
 

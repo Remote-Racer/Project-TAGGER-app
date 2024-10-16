@@ -46,6 +46,23 @@ a:visited {
 	font-weight: 400;
 	font-style: normal;
 }
+
+#stream-overlay-menu {
+
+  position: absolute;
+
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+}
+
+#stream-overlay-menu button {
+
+  position: relative;
+  width: 5vw;
+  height: 5vh;
+  margin-top: 1vh;
+}
   
 #stream-overlay {
   

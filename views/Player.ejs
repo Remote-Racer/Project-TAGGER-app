@@ -3,8 +3,21 @@
     <%- include('partials/navbar') %>
 
     <% if(name){ %>
-        <p1>Logged in as <%= name.name %></p1>
-        <button onclick="window.location.href = 'logout'">Logout</button>
+
+        <section id="stream-container">
+            <div id="stream-overlay-menu">
+                <button onclick="window.location.href = 'logout'">Logout</button>
+                <button>Help</button>
+            </div>
+            <div id="stream-overlay">
+                <p>Logged in as <%= name.name %></p>
+                <p>This is the score area</p>
+            </div>
+            <iframe id="embedded-stream" width="1280" height="720" src="https://www.youtube.com/embed/5FrhtahQiRc" title="Heavy Is The Crown ft. Linkin Park (Official Music Video) | League of Legends Worlds 2024 Anthem" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </section>
+
+        <canvas id="control-canvas"></canvas>
+        <script src="/scripts/frontend/user/controls.js"></script>
     <% } else { %>
         <!-- Login Form -->
 
