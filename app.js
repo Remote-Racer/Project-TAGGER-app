@@ -130,6 +130,15 @@ app.get('/test', function(req, res){
     });
 });
 
+app.get('/docs', function(req, res){
+  res.render('Documentation', {
+      page: {
+          title: 'Documentation'
+      },
+      global: globalInfo
+  });
+});
+
 app.get('/player', function(req, res){
     res.render('Player', {
         name: req.session.user,

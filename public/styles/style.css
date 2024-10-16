@@ -31,6 +31,20 @@ a:visited {
 
   --racing-red: #df2935;
   --lite-red: #e63946;
+  --logo-red: #F70020;
+  --logo-dark: #00142B;
+  --logo-blue: #00B2C6;
+  --logo-yellow: #F7B000;
+}
+
+.rlgrad {
+
+  background-image: linear-gradient(to right, var(--logo-blue), var(--logo-dark), var(--logo-dark), var(--logo-dark), var(--logo-red));
+}
+
+.lrgrad {
+
+  background-image: linear-gradient(to left, var(--logo-blue), var(--logo-dark), var(--logo-dark), var(--logo-dark), var(--logo-red));
 }
 
 .fira-sans {
@@ -272,4 +286,96 @@ footer a:hover {
   position: absolute;
 
   margin-top: 0;
+}
+
+/* Home Page Styling */
+
+#home-about-section {
+
+  background-color: aquamarine;
+
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+
+  border-radius: 5vh 0vh;
+
+  margin: 0 10vw;
+  padding: 2vh 10vw;
+}
+
+.home-section {
+
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+
+  margin: 0 10vw;
+  padding: 1vh 1vw 1vh;
+}
+
+.home-section-l {
+
+  border-radius: 5vh 0vh;
+}
+
+.home-section-r {
+
+  border-radius: 0vh 5vh;
+}
+
+.home-section-inner {
+
+  background-color: var(--logo-dark);
+
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+
+  padding: 2vh 10vw;
+}
+
+.home-section-inner-l {
+
+  border-radius: 5vh 0vh;
+}
+
+.home-section-inner-r {
+
+  border-radius: 0vh 5vh;
+}
+
+#home-inspiration-section {
+
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+
+  border-radius: 0vh 5vh;
+
+  margin: 0 10vw;
+  padding: 1vh 1vw 1vh;
+}
+
+#home-inspiration-section-inner {
+
+  background-color: var(--logo-dark);
+}
+
+#home-resources-section {
+
+  background-color: burlywood;
+  display: flex;
+  flex-direction: column;
+
+  text-align: center;
+
+  border-radius: 5vh 0vh;
+
+  margin: 0 10vw;
+  padding: 2vh 10vw;
 }
