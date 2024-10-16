@@ -247,3 +247,12 @@ footer a:hover {
   margin-bottom: 5%;
   margin: 0% 5% 5% 5%;
 }
+
+/* Control Canvas */
+
+#control-canvas {
+
+  position: absolute;
+
+  margin-top: 0;
+}
