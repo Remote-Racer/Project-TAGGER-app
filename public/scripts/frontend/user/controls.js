@@ -269,7 +269,7 @@ controlCanvas.addEventListener('touchend', (ev) => {
  * LOGGING
  */
 const loggingLoop = () => {
-    console.log(controller.axes);
+    //console.log( controller.axes )
     requestAnimationFrame(loggingLoop);
 };
 requestAnimationFrame(loggingLoop);

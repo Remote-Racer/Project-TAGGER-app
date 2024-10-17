@@ -4,10 +4,16 @@
 
     <% if(name){ %>
 
+        <% if( name.name == 'p1' ) {%>
+
+            <img id="stream" src="data:image/png;base64,<%= stream.frames[0] %>">
+        <%} %>
+
         <section id="stream-container">
             <div id="stream-overlay-menu">
                 <button onclick="window.location.href = 'logout'">Logout</button>
                 <button>Help</button>
+                <button id="stream-connect" onclick="streamPlay()">Connect to Stream</button>
             </div>
             <div id="stream-overlay">
                 <p>Logged in as <%= name.name %></p>
@@ -18,6 +24,8 @@
 
         <canvas id="control-canvas"></canvas>
         <script src="/scripts/frontend/user/controls.js"></script>
+
+        <script src="/scripts/frontend/user/stream.js" defer></script>
     <% } else { %>
         <!-- Login Form -->
 

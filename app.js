@@ -3,11 +3,14 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 
+const fileUpload = require('express-fileupload')
+
 app.set("view engine", "ejs");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use(fileUpload())
 
 var hash = require('pbkdf2-password')()
 var path = require('path');
@@ -101,6 +104,11 @@ const globalInfo = {
     ]
 }
 
+var playerInfo = {
+  frames: [ null, null ],
+  types: [ null, null ]
+}
+
 //Routing
 app.get('/', function(req, res){
     res.render('Home', {
@@ -145,8 +153,23 @@ app.get('/player', function(req, res){
         page: {
             title: 'Player'
         },
-        global: globalInfo
+        global: globalInfo,
+        stream: playerInfo
     });
+});
+
+app.get('/player/stream', function(req, res){
+
+  if( req.session.user && req.session.user.name == 'p1' ) {
+
+    res.send({
+      frame: playerInfo.frames[0],
+      mimeType: playerInfo.types[0]
+    })
+    return
+  }
+
+  res.send({})
 });
 
 app.post('/player', function (req, res, next) {
@@ -174,6 +197,22 @@ app.post('/player', function (req, res, next) {
             res.redirect('/');
         }
     });
+});
+
+app.post('/upload/player1', (req, res) => {
+
+  const { data, mimetype } = req.files.frame
+
+  const encode = (data) => {
+    let buf = Buffer.from(data)
+    let base64 = buf.toString('base64')
+    return base64
+  }
+
+  playerInfo.frames[0] = encode( data )
+  playerInfo.types[0] = mimetype
+
+  res.send('')
 });
 
 app.listen(port, () => {
