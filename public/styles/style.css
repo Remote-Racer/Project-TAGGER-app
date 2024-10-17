@@ -286,8 +286,6 @@ footer a:hover {
   position: absolute;
 
   margin-top: 0;
-
-  pointer-events: none;
 }
 
 /* Home Page Styling */

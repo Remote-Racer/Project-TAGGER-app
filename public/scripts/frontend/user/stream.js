@@ -12,11 +12,13 @@ const stream = document.getElementById('stream');
 console.log(stream);
 function streamLoop() {
     return __awaiter(this, void 0, void 0, function* () {
-        const response = yield fetch('http://localhost:3000/player/stream', {
+        const response = yield fetch('https://project-tagger-app.onrender.com/player/stream', {
             credentials: 'include'
         });
-        const json = yield response.json();
-        stream.src = `data:${json['mimeType']};base64,${json['frame']}`;
+        if (response) {
+            const json = yield response.json();
+            stream.src = `data:${json['mimeType']};base64,${json['frame']}`;
+        }
         requestAnimationFrame(streamLoop);
     });
 }
