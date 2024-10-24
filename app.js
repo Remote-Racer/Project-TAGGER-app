@@ -5,6 +5,8 @@ const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 
+const fs = require('fs')
+
 const fileUpload = require('express-fileupload')
 
 app.set("view engine", "ejs");
@@ -80,7 +82,8 @@ const globalInfo = {
         '/',
         '/spectator',
         '/player',
-        '/test'
+        '/test',
+        '/docs'
     ]
 }
 
@@ -88,6 +91,15 @@ var playerInfo = {
   frames: [ null, null ],
   types: [ null, null ]
 }
+
+function loadOfflineImage(file) {
+
+  const bitmap = fs.readFileSync(file)
+
+  return Buffer.from( bitmap ).toString('base64')
+}
+
+playerInfo.frames[0] = loadOfflineImage('public/assets/Offline.jpg')
 
 //Routes
 app.get('/', function(req, res){

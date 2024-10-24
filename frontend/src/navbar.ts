@@ -13,16 +13,22 @@ type NavbarView = {
 const navbarViews: NavbarView = {
     '/': {
         '/test': 'Test',
-        '/player': 'Sign-in',
+        '/player': 'Play',
         '/spectator': 'Spectate'
     },
     '/test': {
         '/test': 'Test',
-        '/player': 'Sign-in',
+        '/player': 'Play',
         '/spectator': 'Spectate'
     },
     '/player': {
-        '/test': 'Test'
+        '/test': 'Test',
+        '/docs': 'Documentation'
+    },
+    '/docs': {
+        '/test': 'Test',
+        '/player': 'Play',
+        '/spectator': 'Spectate'
     }
 }
 
@@ -32,7 +38,11 @@ function loadNavbar() {
     
     for(const button of navbarButtons ) {
 
-        let viewCandidate = `${ (button as HTMLElement).attributes.getNamedItem('href')!.value }`
+        const buttonHREF = (button as HTMLElement).attributes.getNamedItem('href')
+
+        if( !buttonHREF ) continue
+
+        let viewCandidate = `${ buttonHREF.value }`
     
         if( navbarViews[ window.location.pathname ][ viewCandidate ] ) {
     

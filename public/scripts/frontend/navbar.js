@@ -13,14 +13,23 @@ const navbarViews = {
         '/spectator': 'Spectate'
     },
     '/player': {
-        '/test': 'Test'
+        '/test': 'Test',
+        '/docs': 'Documentation'
+    },
+    '/docs': {
+        '/test': 'Test',
+        '/player': 'Play',
+        '/spectator': 'Spectate'
     }
 };
 function loadNavbar() {
     if (!navbarViews[window.location.pathname])
         return;
     for (const button of navbarButtons) {
-        let viewCandidate = `${button.attributes.getNamedItem('href').value}`;
+        const buttonHREF = button.attributes.getNamedItem('href');
+        if (!buttonHREF)
+            continue;
+        let viewCandidate = `${buttonHREF.value}`;
         if (navbarViews[window.location.pathname][viewCandidate]) {
             button.innerHTML = navbarViews[window.location.pathname][viewCandidate];
             button.classList.remove('deactivated');

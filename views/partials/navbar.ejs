@@ -9,14 +9,28 @@
     </div>
 
     <div id="navbar-button-menu">
-        <% global.navEndpoints.forEach((endpoint) => { %>
-    
-            <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
-    
-        <% }); %>
         <% if(!name){ %>
+
+            <a id="navbar-dropdown" class="navbar-buttons racing-sans">
+                Login
+                <div class="dropdown">
+                    <form id='login-form' method="post" action="/login">
+                
+                        <label for="username">Username:</label>
+                        <input type="text" name="username" id="username">
+                
+                        <label for="password">Password:</label>
+                        <input type="text" name="password" id="password">
+                
+                        <input type="submit" value="Login">
+                
+                    </form>
+                </div>
+            </a>
+
+            <!--
             <div class="login-dropdown">
-                <a class="racing-sans">Login</a>
+                <a id="navbar-dropdown" class="navbar-buttons racing-sans">Login</a>
                 <div class="dropdown">
                     <form id='login-form' method="post" action="/login">
             
@@ -31,14 +45,36 @@
                     </form>
                 </div>
             </div>
+            -->
+            <% global.navEndpoints.forEach((endpoint) => { %>
+    
+                <% if(endpoint != '/player'){ %>
+                    <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
+                <% } %>
+        
+            <% }); %>
         <% } else { %>
+
+            <% global.navEndpoints.forEach((endpoint) => { %>
+    
+                <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
+        
+            <% }); %>
+
+            <a id="navbar-dropdown" class="navbar-buttons racing-sans" href="logout">
+                <%= name.name %> - Logout
+            </a>
+
+            <!--
             <div class="login-dropdown">
                 <a class="racing-sans" onclick="window.location.href = 'logout'">Logout</a>
                 <div class="dropdown">
                     <p class="racing-sans">Logged in as <%= name.name %></p>
                 </div>
             </div>
+            -->
         <% } %>
+        <div id="navbar-spacer"></div>
     </div>
 </div>
 <script src="/scripts/frontend/navbar.js" defer></script>

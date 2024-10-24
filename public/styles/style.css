@@ -61,6 +61,12 @@ a:visited {
 	font-style: normal;
 }
 
+#stream-container {
+  background-color: green;
+  z-index: 0;
+}
+
+
 #stream-overlay-menu {
 
   position: absolute;
@@ -91,7 +97,7 @@ a:visited {
   z-index: 98;
   background-color: aliceblue;
   
-  opacity: 50%;
+  opacity: 0%;
   
   pointer-events: none;
 }
@@ -105,6 +111,16 @@ a:visited {
   
   
   color: #242424;
+}
+
+#stream {
+
+  width: 100vw;
+  height: 100vh;
+}
+
+body {
+  overflow: hidden;
 }
   
 iframe {
@@ -128,11 +144,6 @@ button {
   z-index: 99;
 }
   
-#stream-container {
-  background-color: green;
-  z-index: 0;
-}
-
 #navbar-container {
 
   background-color: #000411;
@@ -188,9 +199,13 @@ button {
 
 #navbar-button-menu {
 
+  display: flex;
+  flex-direction: row;
+
 	margin-left: auto;
 }
 
+/*
 #navbar-button-menu a {
 
   font-size: larger;
@@ -205,6 +220,28 @@ button {
 #navbar-button-menu a:hover {
 
 	text-decoration: overline;
+}
+*/
+
+.navbar-buttons {
+
+  font-size: larger;
+
+	text-decoration: none;
+
+  padding: 1vh 1vw;
+
+  margin-right: 1vw;
+}
+
+.navbar-buttons:hover {
+
+  text-decoration: overline;
+}
+
+#navbar-spacer {
+
+  width: 6vw;
 }
 
 .deactivated {
@@ -262,6 +299,8 @@ footer a:hover {
   flex-direction: column;
 
   background-color: #3772ff;
+
+  color: white;
 
   border-radius: 5%;
 }
@@ -380,9 +419,13 @@ footer a:hover {
   padding: 2vh 10vw;
 }
 
+#navbar-dropdown:hover .dropdown {
+  display: block;
+  position: absolute;
+}
+
 .dropdown {
   display: none;
-  position: absolute;
   background-color: #000411;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
@@ -391,4 +434,5 @@ footer a:hover {
 
 .login-dropdown:hover .dropdown {
   display: block;
+  position: absolute;
 }

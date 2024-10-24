@@ -6,10 +6,12 @@
 
         <% if( name.name == 'p1' ) {%>
 
+            <!--
             <img id="stream" src="data:image/png;base64,<%= stream.frames[0] %>">
+            -->
         <%} %>
 
-        <section id="stream-container">
+        <div id="stream-container">
             <div id="stream-overlay-menu">
                 <button onclick="window.location.href = 'logout'">Logout</button>
                 <button>Help</button>
@@ -19,8 +21,12 @@
                 <p>Logged in as <%= name.name %></p>
                 <p>This is the score area</p>
             </div>
+
+            <img id="stream" src="data:image/png;base64,<%= stream.frames[0] %>">
+            <!--
             <iframe id="embedded-stream" width="1280" height="720" src="https://www.youtube.com/embed/5FrhtahQiRc" title="Heavy Is The Crown ft. Linkin Park (Official Music Video) | League of Legends Worlds 2024 Anthem" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        </section>
+            -->
+        </div>
 
         <canvas id="control-canvas"></canvas>
         <script src="/scripts/frontend/user/controls.js"></script>
