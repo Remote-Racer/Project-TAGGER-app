@@ -10,6 +10,10 @@
       <iframe id="embedded-stream" width="1280" height="720" src="https://www.youtube.com/embed/5FrhtahQiRc" title="Heavy Is The Crown ft. Linkin Park (Official Music Video) | League of Legends Worlds 2024 Anthem" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </section>
     -->
+    <script>var isAdmin = false;</script>
+    <% if(name && name.name == 'p1'){ %>
+      <script>isAdmin = true;</script>
+    <% } %>
     <section>
       <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
         <div>Live Chat</div>
@@ -29,8 +33,13 @@
       const socket = io();
       
       socket.on('addToChat',function(data){
-        chatText.innerHTML += '<div>' + data + '</div>';
+        chatText.innerHTML += '<div id="' + data[0] + '" onclick="testfunc([' + data[0] + ', isAdmin])">#' + data[0] + ': ' + data[1] + '</div>';
         //adminText.innerHTML += '<div onclick="testfunc(this)">' + data + '</div>';
+      });
+
+      socket.on('removeFromChat',function(data){
+        console.log('Delete post #' + data);
+        document.getElementById(data).innerHTML = 'Removed by admin';
       });
     
       chatForm.onsubmit = function(e){
@@ -43,8 +52,11 @@
       }
     
       function testfunc(data){
-        data.innerHTML = 'deleted by admin';
-        console.log('post removed');
+        if(data[1]){
+          socket.emit('deleteMsg', data[0]);
+        } else {
+          alert('Need admin privileges!');
+        }
       }
     </script>
 </body>
