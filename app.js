@@ -228,6 +228,7 @@ server.listen(process.env.PORT || 3000, () => {
 //SOCKETS
 //--------------------------------------------------
 var SOCKET_LIST = {};
+var post_id = 0;
 
 io.on('connection', (socket) => {
   console.log('Client connected');
@@ -236,12 +237,20 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     console.log('Client disconnected');
+    delete SOCKET_LIST[socket.id];
   });
 
   socket.on('sendMsgToServer',function(data){
 		var playerName = ("" + socket.id).slice(2,7);
 		for(var i in SOCKET_LIST){
-			SOCKET_LIST[i].emit('addToChat',playerName + ': ' + data);
+			SOCKET_LIST[i].emit('addToChat',[post_id, playerName + ': ' + data]);
+		}
+    post_id += 1;
+	});
+
+  socket.on('deleteMsg',function(data){
+		for(var i in SOCKET_LIST){
+			SOCKET_LIST[i].emit('removeFromChat', data);
 		}
 	});
 
