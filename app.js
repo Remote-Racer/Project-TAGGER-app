@@ -1,7 +1,9 @@
-//Initial setup
+//INITIALIZATION
+//--------------------------------------------------
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3000;
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 
 const fileUpload = require('express-fileupload')
 
@@ -34,7 +36,8 @@ app.use(function(req, res, next){
   next();
 });
 
-//Backend Data
+//AUTHENTICATION
+//--------------------------------------------------
 //User list
 var users = {
   p1: { name: 'p1' },
@@ -69,32 +72,9 @@ function authenticate(name, pass, fn) {
   });
 }
 
-//Checks if user has a valid session for the page
-function isValidUser(req, res, next){
-  if(req.session.user){
-    return true;
-  }
-  return false;
-}
-
-//Prevent invalid users from accessing pages
-function restrictPage(req, res, next){
-  if(isValidUser(req, res, next)){
-    next();
-  } else {
-    res.redirect('/');
-  }
-}
-
-app.get('/logout', function(req, res){
-  // destroy the user's session to log them out
-  // will be re-created next request
-  req.session.destroy(function(){
-    res.redirect('/');
-  });
-});
-
-
+//ROUTING
+//--------------------------------------------------
+//Data
 const globalInfo = {
     navEndpoints: [
         '/',
@@ -109,9 +89,10 @@ var playerInfo = {
   types: [ null, null ]
 }
 
-//Routing
+//Routes
 app.get('/', function(req, res){
     res.render('Home', {
+        name: req.session.user,
         page: {
             title: 'Home'
         },
@@ -119,9 +100,17 @@ app.get('/', function(req, res){
     });
 });
 
+app.get('/logout', function(req, res){
+  // destroy the user's session to log them out
+  // will be re-created next request
+  req.session.destroy(function(){
+    res.redirect('/');
+  });
+});
+
 app.get('/spectator', function(req, res){
     res.render('Spectator', {
-
+        name: req.session.user,
         page: {
             title: 'Spectator'
         },
@@ -131,6 +120,7 @@ app.get('/spectator', function(req, res){
 
 app.get('/test', function(req, res){
     res.render('TestView', {
+        name: req.session.user,
         page: {
             title: 'Test Page'
         },
@@ -140,6 +130,7 @@ app.get('/test', function(req, res){
 
 app.get('/docs', function(req, res){
   res.render('Documentation', {
+      name: req.session.user,
       page: {
           title: 'Documentation'
       },
@@ -172,7 +163,7 @@ app.get('/player/stream', function(req, res){
   res.send({})
 });
 
-app.post('/player', function (req, res, next) {
+app.post('/login', function (req, res, next) {
     if (!req.body) return res.sendStatus(400)
     authenticate(req.body.username, req.body.password, function(err, user){
       if (err) return next(err)
@@ -187,8 +178,8 @@ app.post('/player', function (req, res, next) {
         req.session.success = 'Authenticated as ' + user.name
         + ' click to <a href="/logout">logout</a>. '
         + ' You may now access <a href="/restricted">/restricted</a>.';
-        //Redirect to user page
-        res.redirect('/player');
+        //Redirect to page user signed in on
+        res.redirect(req.headers.referer.substring(req.headers.referer.lastIndexOf('/')));
     });
         } else {
             req.session.error = 'Authentication failed, please check your '
@@ -215,6 +206,37 @@ app.post('/upload/player1', (req, res) => {
   res.send('')
 });
 
-app.listen(port, () => {
-    console.log(`Example app listening on port ${port}`)
-})
+//STARTUP
+//--------------------------------------------------
+
+server.listen(process.env.PORT || 3000, () => {
+  console.log('Server listening on port 3000');
+});
+
+//SOCKETS
+//--------------------------------------------------
+var SOCKET_LIST = {};
+
+io.on('connection', (socket) => {
+  console.log('Client connected');
+  socket.id = Math.random();
+	SOCKET_LIST[socket.id] = socket;
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+
+  socket.on('sendMsgToServer',function(data){
+		var playerName = ("" + socket.id).slice(2,7);
+		for(var i in SOCKET_LIST){
+			SOCKET_LIST[i].emit('addToChat',playerName + ': ' + data);
+		}
+	});
+
+  socket.on('evalServer',function(data){
+		if(!DEBUG)
+			return;
+		var res = eval(data);
+		socket.emit('evalAnswer',res);		
+	});
+});

@@ -14,6 +14,31 @@
             <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
     
         <% }); %>
+        <% if(!name){ %>
+            <div class="login-dropdown">
+                <a class="racing-sans">Login</a>
+                <div class="dropdown">
+                    <form id='login-form' method="post" action="/login">
+            
+                        <label for="username">Username:</label>
+                        <input type="text" name="username" id="username">
+            
+                        <label for="password">Password:</label>
+                        <input type="text" name="password" id="password">
+            
+                        <input type="submit" value="Login">
+            
+                    </form>
+                </div>
+            </div>
+        <% } else { %>
+            <div class="login-dropdown">
+                <a class="racing-sans" onclick="window.location.href = 'logout'">Logout</a>
+                <div class="dropdown">
+                    <p class="racing-sans">Logged in as <%= name.name %></p>
+                </div>
+            </div>
+        <% } %>
     </div>
 </div>
 <script src="/scripts/frontend/navbar.js" defer></script>

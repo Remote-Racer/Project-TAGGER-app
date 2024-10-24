@@ -379,3 +379,16 @@ footer a:hover {
   margin: 0 10vw;
   padding: 2vh 10vw;
 }
+
+.dropdown {
+  display: none;
+  position: absolute;
+  background-color: #000411;
+  min-width: 160px;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+.login-dropdown:hover .dropdown {
+  display: block;
+}

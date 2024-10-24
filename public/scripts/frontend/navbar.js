@@ -4,12 +4,12 @@ const navbarButtons = document.querySelectorAll('.navbar-buttons');
 const navbarViews = {
     '/': {
         '/test': 'Test',
-        '/player': 'Sign-in',
+        '/player': 'Play',
         '/spectator': 'Spectate'
     },
     '/test': {
         '/test': 'Test',
-        '/player': 'Sign-in',
+        '/player': 'Play',
         '/spectator': 'Spectate'
     },
     '/player': {

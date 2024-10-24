@@ -1,6 +1,7 @@
 <%- include('partials/header') %>
 <body>
     <%- include('partials/navbar') %>
+    <!--
     <section id="stream-container">
       <button>Help</button>
       <div id="stream-overlay">
@@ -8,5 +9,43 @@
       </div>
       <iframe id="embedded-stream" width="1280" height="720" src="https://www.youtube.com/embed/5FrhtahQiRc" title="Heavy Is The Crown ft. Linkin Park (Official Music Video) | League of Legends Worlds 2024 Anthem" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </section>
+    -->
+    <section>
+      <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
+        <div>Live Chat</div>
+      </div>
+
+      <form id="chat-form">
+        <input id="chat-input" type="text" style="width:500px"></input>
+      </form>
+    </section>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      var chatText = document.getElementById('chat-text');
+      var chatInput = document.getElementById('chat-input');
+      var chatForm = document.getElementById('chat-form');
+    
+      const socket = io();
+      
+      socket.on('addToChat',function(data){
+        chatText.innerHTML += '<div>' + data + '</div>';
+        //adminText.innerHTML += '<div onclick="testfunc(this)">' + data + '</div>';
+      });
+    
+      chatForm.onsubmit = function(e){
+        e.preventDefault();
+        if(chatInput.value[0] === '/')
+          socket.emit('evalServer',chatInput.value.slice(1));
+        else
+          socket.emit('sendMsgToServer',chatInput.value);
+        chatInput.value = '';		
+      }
+    
+      function testfunc(data){
+        data.innerHTML = 'deleted by admin';
+        console.log('post removed');
+      }
+    </script>
 </body>
 <%- include('partials/footer') %>
