@@ -87,11 +87,6 @@ const globalInfo = {
     ]
 }
 
-var playerInfo = {
-  frames: [ null, null ],
-  types: [ null, null ]
-}
-
 var playerControlInfo = {}
 var playerStreamInfo = {}
 
@@ -101,8 +96,6 @@ function loadOfflineImage(file) {
 
   return Buffer.from( bitmap ).toString('base64')
 }
-
-playerInfo.frames[0] = loadOfflineImage('public/assets/Offline.jpg')
 
 const offlineImage = loadOfflineImage('public/assets/Offline.jpg')
 
@@ -170,7 +163,7 @@ app.get('/player', function(req, res){
             title: 'Player'
         },
         global: globalInfo,
-        stream: playerInfo
+        stream: playerStreamInfo[ req.session.user.name ]
     });
 });
 
