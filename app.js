@@ -92,6 +92,9 @@ var playerInfo = {
   types: [ null, null ]
 }
 
+var playerControlInfo = {}
+var playerStreamInfo = {}
+
 function loadOfflineImage(file) {
 
   const bitmap = fs.readFileSync(file)
@@ -100,6 +103,16 @@ function loadOfflineImage(file) {
 }
 
 playerInfo.frames[0] = loadOfflineImage('public/assets/Offline.jpg')
+
+const offlineImage = loadOfflineImage('public/assets/Offline.jpg')
+
+for( let user in users ) {
+
+  playerStreamInfo[ user ] = {
+    frame: offlineImage,
+    type: 'image/jpeg' 
+  }
+}
 
 //Routes
 app.get('/', function(req, res){
@@ -161,18 +174,33 @@ app.get('/player', function(req, res){
     });
 });
 
-app.get('/player/stream', function(req, res){
+app.get('/player/:id/control', (req, res) => {
 
-  if( req.session.user && req.session.user.name == 'p1' ) {
+  let playerControllerState = playerControlInfo[ req.params.id ]
+
+  if( playerControllerState ) {
 
     res.send({
-      frame: playerInfo.frames[0],
-      mimeType: playerInfo.types[0]
+      x: playerControllerState[0],
+      y: playerControllerState[1]
     })
+
+    res.status(200).send({})
     return
   }
 
-  res.send({})
+  res.status(400).send({ error: 'Invalid player id!' })
+})
+
+app.get('/player/stream', (req, res) => {
+
+  if( req.session.user ) {
+
+    res.status(200).send( playerStreamInfo[ req.session.user.name ] )
+    return
+  }
+
+  res.status(400).send({ error: 'No session for streaming! Please login!' })
 });
 
 app.post('/login', function (req, res, next) {
@@ -202,7 +230,7 @@ app.post('/login', function (req, res, next) {
     });
 });
 
-app.post('/upload/player1', (req, res) => {
+app.post('/upload/:id/stream', (req, res) => {
 
   const { data, mimetype } = req.files.frame
 
@@ -212,10 +240,30 @@ app.post('/upload/player1', (req, res) => {
     return base64
   }
 
-  playerInfo.frames[0] = encode( data )
-  playerInfo.types[0] = mimetype
+  if( playerStreamInfo[ req.params.id ] ) {
 
-  res.send('')
+    playerStreamInfo[ req.params.id ] = {
+      frame: encode( data ),
+      type: mimetype
+    }
+
+    res.status(200).send({})
+    return;
+  }
+
+  res.status(400).send({ error: 'Missing id for stream upload' })
+});
+
+app.post('/upload/player/control', (req, res) => {
+
+  if( req.session.user && req.session.user.name ) {
+
+    playerControlInfo[ req.session.user.name ] = req.body['axes'] 
+
+    return res.status(200).send({})
+  }
+
+  res.status(400).send({ error: 'Missing credentials for control upload' })
 });
 
 //STARTUP
