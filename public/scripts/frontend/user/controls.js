@@ -1,4 +1,13 @@
-"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+import { requester } from './requester.js';
 const controlCanvas = document.getElementById('control-canvas');
 controlCanvas.width = window.innerWidth;
 controlCanvas.height = window.innerHeight;
@@ -25,8 +34,45 @@ class Controller {
         controlCanvasCTX.stroke();
     }
 }
-var rendering = false;
 var controller = new Controller();
+var previousUpdate = [0, 0, 0, 0];
+function controllerUpdate() {
+    return __awaiter(this, void 0, void 0, function* () {
+        let needsUpdate = false;
+        for (let i = 0; i < 4; i++) {
+            if (previousUpdate[i] != controller.axes[i]) {
+                needsUpdate = true;
+            }
+        }
+        if (!needsUpdate)
+            return;
+        let requestBody = {
+            axes: controller.axes
+        };
+        //Local testing
+        //const URL = 'http://localhost:3000/upload/player/control'
+        //Deployment
+        const URL = 'http://project-tagger-app.onrender.com/upload/player/control';
+        const response = yield fetch(URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+            body: JSON.stringify(requestBody)
+        });
+        if (response && response.status != 200) {
+            console.log('Could not post to endpoint!');
+        }
+        previousUpdate = controller.axes;
+    });
+}
+var control_update = {
+    name: 'control_request',
+    execute: controllerUpdate
+};
+requester.push(control_update);
+var rendering = false;
 var start = Date.now();
 var usingGamepad = false;
 var usingKeyboard = false;

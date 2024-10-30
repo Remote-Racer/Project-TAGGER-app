@@ -1,4 +1,7 @@
 
+import { scheduler } from 'timers/promises';
+import { ScheduledRequest, requester } from './requester.js';
+
 const controlCanvas = document.getElementById('control-canvas') as HTMLCanvasElement
 
 controlCanvas.width = window.innerWidth
@@ -55,6 +58,58 @@ class Controller {
     }
 }
 
+var controller = new Controller()
+
+var previousUpdate = [0, 0, 0, 0]
+
+async function controllerUpdate() {
+
+    let needsUpdate = false
+    for(let i = 0; i < 4; i++) {
+
+        if( previousUpdate[i] != controller.axes[i] ){
+
+            needsUpdate = true
+        }
+    }
+
+    if( !needsUpdate ) return
+
+    let requestBody = {
+
+        axes: controller.axes
+    }
+
+    //Local testing
+    //const URL = 'http://localhost:3000/upload/player/control'
+
+    //Deployment
+    const URL = 'http://project-tagger-app.onrender.com/upload/player/control'
+
+    const response = await fetch(URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'  
+        },
+        credentials: 'include',
+        body: JSON.stringify( requestBody )
+    })
+
+    if( response && response.status != 200 ) {
+
+        console.log( 'Could not post to endpoint!' )
+    }
+
+    previousUpdate = controller.axes
+}
+
+var control_update: ScheduledRequest = {
+    name: 'control_request',
+    execute: controllerUpdate
+}
+
+requester.push( control_update )
+
 interface ControlStart {
 
     origin?: number[]
@@ -66,7 +121,6 @@ interface ControlMove {
 }
 
 var rendering = false
-var controller = new Controller()
 
 
 var start = Date.now();
