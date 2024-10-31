@@ -420,6 +420,11 @@ footer a:hover {
 #navbar-dropdown:hover .dropdown {
   display: block;
   position: absolute;
+  overflow: hidden;
+  min-width: 160px;
+  max-width: 90vw;        /* Prevent the dropdown from exceeding the screen width */
+  box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+  z-index: 1;
 }
 
 .dropdown {
@@ -433,4 +438,11 @@ footer a:hover {
 .login-dropdown:hover .dropdown {
   display: block;
   position: absolute;
+}
+
+@media only screen and (max-width: 800px) {
+  #navbar-dropdown:hover .dropdown {
+    max-width: 80vw;       /* Adjust width for smaller screens */
+    right: 5vw;            /* Add space from the edge */
+  }
 }
