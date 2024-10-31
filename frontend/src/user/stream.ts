@@ -5,7 +5,13 @@ console.log( stream )
 
 async function streamLoop() {
 
-    const response = await fetch('https://project-tagger-app.onrender.com/player/stream', {
+    //Local testing
+    //const URL = 'http://localhost:3000/player/stream'
+
+    //Deployment
+    const URL = 'http://project-tagger-app.onrender.com/player/stream'
+
+    const response = await fetch(URL, {
         credentials: 'include'
     })
 

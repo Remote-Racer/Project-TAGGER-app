@@ -10,9 +10,9 @@
       <iframe id="embedded-stream" width="1280" height="720" src="https://www.youtube.com/embed/5FrhtahQiRc" title="Heavy Is The Crown ft. Linkin Park (Official Music Video) | League of Legends Worlds 2024 Anthem" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
     </section>
     -->
-    <script>var isAdmin = false;</script>
+    <script>var isAdmin = false; //Flag for admin privileges, initially set to be false</script>
     <% if(name && name.name == 'p1'){ %>
-      <script>isAdmin = true;</script>
+      <script>isAdmin = true; //After session value is passed, set flag if user has the correct username</script>
     <% } %>
     <section>
       <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
@@ -26,31 +26,33 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
+      //Reference values for page elements
       var chatText = document.getElementById('chat-text');
       var chatInput = document.getElementById('chat-input');
       var chatForm = document.getElementById('chat-form');
     
       const socket = io();
       
+      //Adds collected string to chat box with identifier and functionality for removal
       socket.on('addToChat',function(data){
         chatText.innerHTML += '<div id="' + data[0] + '" onclick="testfunc([' + data[0] + ', isAdmin])">#' + data[0] + ': ' + data[1] + '</div>';
-        //adminText.innerHTML += '<div onclick="testfunc(this)">' + data + '</div>';
       });
 
+      //Replaces specified chat message with a removal notice
       socket.on('removeFromChat',function(data){
         console.log('Delete post #' + data);
         document.getElementById(data).innerHTML = 'Removed by admin';
       });
-    
+      
+      //Pushes input from chat form to the server, prevents empty inputs
       chatForm.onsubmit = function(e){
         e.preventDefault();
-        if(chatInput.value[0] === '/')
-          socket.emit('evalServer',chatInput.value.slice(1));
-        else
-          socket.emit('sendMsgToServer',chatInput.value);
+        socket.emit('sendMsgToServer',chatInput.value);
         chatInput.value = '';		
       }
-    
+      
+      //Checks session flag from server and relays message to delete specified message if successful, otherwise alert the user
+      //Takes an input of an array with a boolean value for admin privileges at 0 and the index of the specified message at 1
       function testfunc(data){
         if(data[1]){
           socket.emit('deleteMsg', data[0]);

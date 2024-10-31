@@ -43,5 +43,115 @@
             </p>
         </div>
     </div>
+
+    <div>
+        <p>Game Lobby</p>
+        <ul id="game-list"></ul><br>
+
+        <p id="lobby-name">Currently Browsing Lobbies</p>
+        <ul id="player-list"></ul><br>
+
+
+        <p id="round-count">Waiting for Round</p>
+        <p id="score-count">Score: N/A</p>
+        <a onclick="winRound(1)">P1</a>
+        <a onclick="winRound(0)">P2</a><br>
+        <a onclick="createLobby()">Create Lobby</a>
+    </div>
 </body>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  //Variables and page element references
+  var gameList = document.getElementById('game-list');
+  var lobbyName = document.getElementById('lobby-name');
+  var playerList = document.getElementById('player-list');
+  var roundCount = document.getElementById('round-count');
+  var scoreCount = document.getElementById('score-count');
+  var lobby = -1;
+
+  const socket = io();
+
+  //Inserts new lobbies with index passed by socket
+  socket.on('updateGames', function(data){
+    gameList.innerHTML += '<li id="' + data + '"><a onclick="joinGame(' + data + ')">' + data + '</a></li>';
+  });
+
+  //Removes lobby at specified index
+  socket.on('removeGame', function(data){
+    document.getElementById(data).remove();
+  });
+
+  //Updates round counter with current value
+  socket.on('updateRound', function(data){
+    roundCount.innerHTML = 'Round ' + data;
+  });
+
+  //Updates score readout with current value
+  socket.on('updateScore', function(data){
+    scoreCount.innerHTML = 'Score: ' + data[0] + ':' + data[1];
+  });
+
+  //Replaces round counter with waiting message until second player connects
+  socket.on('updateQueue', () => {
+    roundCount.innerHTML = 'Waiting for another player...';
+  })
+
+  //Displays win message, clears other text fields, and resets flag for joining new lobbies
+  socket.on('gameOver', function(data){
+    if(lobby == data[0]){
+      lobby = -1;
+      roundCount.innerHTML = "Game Over, player " + data[1] + " wins!";
+    }
+    lobbyName.innerHTML = 'Currently Browsing Lobbies';
+    scoreCount.innerHTML = 'Score: N/A';
+    playerList.innerHTML = '';
+  })
+
+  //Presents an alert depending on flag passed by server
+  //0 = fail due to existing connection
+  //1 = success
+  //2 = fail due to full lobby
+  //default catches unexpected errors
+  socket.on('joinResponse', function(data){
+    console.log(data);
+    switch(data[0]){
+        case 0:
+            alert('Currently in a lobby.');
+            break;
+        case 1:
+            alert('Joined Lobby!');
+            lobbyName.innerHTML = 'Now in lobby ' + data[1] + '.';
+            lobby = data[1];
+            break;
+        case 2:
+            alert('Lobby is currently full.');
+            break; 
+        default:
+            console.log('Something went wrong.');
+            break;
+    }
+  });
+
+  //Adds the given player index to the player list
+  socket.on('addPlayer', function(data){
+    console.log(data + ' joined the game.');
+    playerList.innerHTML += '<li>' + data + '</li>';
+  });
+
+  //Initiates round end with passed player value
+  function winRound(player){
+    socket.emit('winRound', [lobby, player]);
+  }
+
+  //Queues server to create a new lobby
+  function createLobby(){
+    socket.emit('createLobby');
+  }
+
+  //Sends a request to server to join lobby at the specified id
+  function joinGame(id){
+    socket.emit('joinLobby', id);
+  }
+</script>
 <%- include('partials/footer') %>

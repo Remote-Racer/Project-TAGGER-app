@@ -4,6 +4,7 @@ const express = require("express");
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
+const gameServer = require('./game.js');
 
 const fs = require('fs')
 
@@ -20,6 +21,7 @@ var hash = require('pbkdf2-password')()
 var path = require('path');
 var session = require('express-session');
 const { equal } = require("assert");
+const e = require("express");
 
 app.use(session({
   resave: false, // don't save session if unmodified
@@ -87,10 +89,8 @@ const globalInfo = {
     ]
 }
 
-var playerInfo = {
-  frames: [ null, null ],
-  types: [ null, null ]
-}
+var playerControlInfo = {}
+var playerStreamInfo = {}
 
 function loadOfflineImage(file) {
 
@@ -99,7 +99,15 @@ function loadOfflineImage(file) {
   return Buffer.from( bitmap ).toString('base64')
 }
 
-playerInfo.frames[0] = loadOfflineImage('public/assets/Offline.jpg')
+const offlineImage = loadOfflineImage('public/assets/Offline.jpg')
+
+for( let user in users ) {
+
+  playerStreamInfo[ user ] = {
+    frame: offlineImage,
+    type: 'image/jpeg' 
+  }
+}
 
 //Routes
 app.get('/', function(req, res){
@@ -157,22 +165,37 @@ app.get('/player', function(req, res){
             title: 'Player'
         },
         global: globalInfo,
-        stream: playerInfo
+        stream: playerStreamInfo[ req.session.user.name ]
     });
 });
 
-app.get('/player/stream', function(req, res){
+app.get('/player/:id/control', (req, res) => {
 
-  if( req.session.user && req.session.user.name == 'p1' ) {
+  let playerControllerState = playerControlInfo[ req.params.id ]
+
+  if( playerControllerState ) {
 
     res.send({
-      frame: playerInfo.frames[0],
-      mimeType: playerInfo.types[0]
+      x: playerControllerState[0],
+      y: playerControllerState[1]
     })
+
+    res.status(200).send({})
     return
   }
 
-  res.send({})
+  res.status(400).send({ error: 'Invalid player id!' })
+})
+
+app.get('/player/stream', (req, res) => {
+
+  if( req.session.user ) {
+
+    res.status(200).send( playerStreamInfo[ req.session.user.name ] )
+    return
+  }
+
+  res.status(400).send({ error: 'No session for streaming! Please login!' })
 });
 
 app.post('/login', function (req, res, next) {
@@ -202,7 +225,7 @@ app.post('/login', function (req, res, next) {
     });
 });
 
-app.post('/upload/player1', (req, res) => {
+app.post('/upload/:id/stream', (req, res) => {
 
   const { data, mimetype } = req.files.frame
 
@@ -212,10 +235,30 @@ app.post('/upload/player1', (req, res) => {
     return base64
   }
 
-  playerInfo.frames[0] = encode( data )
-  playerInfo.types[0] = mimetype
+  if( playerStreamInfo[ req.params.id ] ) {
 
-  res.send('')
+    playerStreamInfo[ req.params.id ] = {
+      frame: encode( data ),
+      type: mimetype
+    }
+
+    res.status(200).send({})
+    return;
+  }
+
+  res.status(400).send({ error: 'Missing id for stream upload' })
+});
+
+app.post('/upload/player/control', (req, res) => {
+
+  if( req.session.user && req.session.user.name ) {
+
+    playerControlInfo[ req.session.user.name ] = req.body['axes'] 
+
+    return res.status(200).send({})
+  }
+
+  res.status(400).send({ error: 'Missing credentials for control upload' })
 });
 
 //STARTUP
@@ -231,15 +274,21 @@ var SOCKET_LIST = {};
 var post_id = 0;
 
 io.on('connection', (socket) => {
+  //General
+  //Adds connected client to list with a unique identifier, sets default lobby value
   console.log('Client connected');
   socket.id = Math.random();
 	SOCKET_LIST[socket.id] = socket;
+  socket.lobby = 0;
 
+  //Disconnects client and clears the socket identifier from the list
   socket.on('disconnect', () => {
     console.log('Client disconnected');
     delete SOCKET_LIST[socket.id];
   });
 
+  //Chat System
+  //Collects message from client and relays it to all connected clients
   socket.on('sendMsgToServer',function(data){
 		var playerName = ("" + socket.id).slice(2,7);
 		for(var i in SOCKET_LIST){
@@ -248,16 +297,89 @@ io.on('connection', (socket) => {
     post_id += 1;
 	});
 
+  //Collects specified index and sends request to delete message to all clients
   socket.on('deleteMsg',function(data){
 		for(var i in SOCKET_LIST){
 			SOCKET_LIST[i].emit('removeFromChat', data);
 		}
 	});
 
-  socket.on('evalServer',function(data){
-		if(!DEBUG)
-			return;
-		var res = eval(data);
-		socket.emit('evalAnswer',res);		
-	});
+  //Game System
+  //Populates all clients with current server list
+  for(var i in gameServer.gamesList){
+    socket.emit('updateGames', i);
+  }
+
+  //Creates a new lobby pushes new index to all clients for display
+  socket.on('createLobby', () => {
+    var newLobby = gameServer.newGame();
+    for(var i in SOCKET_LIST){
+      SOCKET_LIST[i].emit('updateGames', newLobby);
+    }
+  });
+
+  //Checks if player at current socket can join and responds with a flag indicating output status
+  //If first player joins, sends message to present queue message
+  //If second player joins, initiates round timer and pushes initial game state for display
+  socket.on('joinLobby', function(data){
+    if(socket.lobby != 0){
+      socket.emit('joinResponse', [0, -1]);
+    } else if(gameServer.joinGame([data, socket.id]) == 1){
+      socket.lobby = data;
+      socket.emit('joinResponse', [1, socket.lobby]);
+      if(Object.keys(gameServer.gamesList[data].playerList).length == 1){
+        socket.emit('updateQueue');
+      }
+      if(Object.keys(gameServer.gamesList[data].playerList).length == 2){
+        for(var i in gameServer.gamesList[data].playerList){
+          SOCKET_LIST[i].emit('updateRound', gameServer.gamesList[data].round);
+          SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[data].score);
+        }
+        gameServer.gamesList[data].timer = setTimeout(function(){winRound(data, gameServer.gamesList[data].runner)}, 5000);
+      }
+      for(var i in gameServer.gamesList[data].playerList){
+        if(i == socket.id){
+          for(var j in gameServer.gamesList[data].playerList){
+            SOCKET_LIST[j].emit('addPlayer', socket.id);
+          }
+        } else {
+          socket.emit('addPlayer', i);
+        }
+      }
+    } else {
+      socket.emit('joinResponse', [2, -1]);
+    }
+  })
+
+  //Processes request to end round, if game is over, sends final messages to players
+  //in the lobby, destroys lobby, and pushes message to delete its listing on all clients
+  //If game is still running, update scores and initiate a new round timer with roles reversed
+  function winRound(game, player){
+    if(gameServer.endRound(game, player)){
+      var endScore = gameServer.gamesList[game].score
+      var players = gameServer.gamesList[game].playerList
+      var gameWinner = gameServer.endGame(game)
+      for(var i in players){
+        SOCKET_LIST[i].emit('updateScore', endScore);
+        SOCKET_LIST[i].emit('gameOver', [game, gameWinner]);
+        SOCKET_LIST[i].lobby = 0;
+      }
+      for(var j in SOCKET_LIST){
+        SOCKET_LIST[j].emit('removeGame', game);
+      }
+    } else {
+      for(var i in gameServer.gamesList[game].playerList){
+        SOCKET_LIST[i].emit('updateRound', gameServer.gamesList[game].round);
+        SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[game].score);
+      }
+      gameServer.gamesList[game].timer = setTimeout(function(){winRound(game, gameServer.gamesList[game].runner)}, 5000);
+    }
+  }
+
+  //Processes requests to end round premaurely
+  //Interrupts round timer and initiates round end function with given parameters
+  socket.on('winRound', function(data){
+    clearInterval(gameServer.gamesList[data[0]].timer);
+    winRound(data[0], data[1])
+  });
 });
