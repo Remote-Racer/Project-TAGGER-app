@@ -285,14 +285,14 @@ footer a:hover {
 	}
 }
 
-#login-form-container {
-
-  padding: 1vw;
-}
 
 #login-form {
 
+  position: relative;
+
   width: 10vw;
+
+  min-width: 160px;
 
   display: flex;
 
@@ -303,6 +303,8 @@ footer a:hover {
   color: white;
 
   border-radius: 5%;
+
+  background-image: linear-gradient(to left, var(--logo-blue), var(--logo-dark), var(--logo-dark), var(--logo-dark), var(--logo-red));
 }
 
 #login-form label {
@@ -315,8 +317,22 @@ footer a:hover {
 #login-form input {
 
   margin-bottom: 5%;
-  margin: 0% 5% 5% 5%;
+  margin: 2% 5% 5% 5%;
 }
+
+#login-form input[type="submit"] {
+  background-color: #007bff;                  /* Button color */
+  color: white;                               /* Text color */
+  padding: 8px 16px;                          /* Padding */
+  border: none;                               /* Remove default border */
+  border-radius: 4px;                         /* Rounded corners */
+  cursor: pointer;                            /* Pointer on hover */
+  margin-left: 20%;
+  margin-right: 20%;
+  font-family: "Racing Sans One", sans-serif;
+}
+
+
 
 /* Control Canvas */
 
