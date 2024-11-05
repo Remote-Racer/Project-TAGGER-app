@@ -66,8 +66,13 @@ a:visited {
   z-index: 0;
 }
 
+#stream-overlay{
+  position: absolute;
+  right:50%;
+  top: 50%;
+}
 
-#stream-overlay-menu {
+/* #stream-overlay-menu {
 
   position: absolute;
 
@@ -82,7 +87,7 @@ a:visited {
   width: 5vw;
   height: 5vh;
   margin-top: 1vh;
-}
+} */
   
 #stream-overlay {
   
@@ -120,7 +125,7 @@ a:visited {
 }
 
 body {
-  overflow: hidden;
+  /* overflow: hidden; */
 }
   
 iframe {
@@ -445,4 +450,102 @@ footer a:hover {
     max-width: 80vw;       /* Adjust width for smaller screens */
     right: 5vw;            /* Add space from the edge */
   }
+
+  #navbar-home a {
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+  }
+  
+}
+
+#score-display {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: "Racing Sans One", sans-serif;
+  z-index: 99;
+}
+
+#score-display p {
+  margin: 0;
+  font-size: 1.5em;
+  text-align: center;
+}
+
+/* Help Button */
+#help-container {
+  position: relative;
+  right: 10px;
+  left: auto;
+}
+
+#help-button {
+  position: absolute;
+  top: 10px;
+  padding: 8px 16px;
+  background-color: #000000;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-family: "Racing Sans One", sans-serif;
+  font-size: 1em;
+}
+
+/* Modal Styling */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 110;
+}
+
+.modal-content {
+  position: relative;
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+  border-radius: 8px;
+  font-family: "Racing Sans One", sans-serif;
+  color: #333;
+}
+
+.modal-content ul{
+  margin-left: 3%;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 1.5em;
+  color: #333;
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 600px) {
+  #help-button {
+    top: 5px;
+    padding: 6px 12px;
+    font-size: 0.9em;
+  }
+
+  .modal-content {
+    width: 90%;
+    padding: 15px;
+    font-size: 1em;
+  }
+  
 }
