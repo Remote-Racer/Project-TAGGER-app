@@ -4,12 +4,21 @@
 
     <% if(name){ %>
 
+        <div id="score-display">
+            <p><span id="p1-score">0</span> : <span id="p2-score">0</span></p>
+        </div>
+
+        <div id="help-container">
+            <button id="help-button" onclick="toggleHelpModal()">Help</button>
+        </div>
+
         <div id="stream-container">
-            <div id="stream-overlay-menu">
+            <!-- <div id="stream-overlay-menu">
                 <button onclick="window.location.href = 'logout'">Logout</button>
                 <button>Help</button>
                 <button id="stream-connect" onclick="streamPlay()">Connect to Stream</button>
-            </div>
+            </div> -->
+            
             <div id="stream-overlay">
                 <p>Logged in as <%= name.name %></p>
                 <p>This is the score area</p>
@@ -18,9 +27,47 @@
             <canvas id="control-canvas"></canvas>
             <img id="stream" src="data:image/png;base64,<%= stream.frame %>">
         </div>
+
+        <div id="help-modal" class="modal">
+            <div class="modal-content">
+                <span class="close-button" onclick="toggleHelpModal()">&times;</span>
+                <h2>Game Rules</h2>
+                <p>
+                    Here are the rules for the game:
+                    <ul>
+                        <li>Each player controls an RC car and tries to "tag" the opponent's car by getting close to it.</li>
+                        <li>The game is timed, and each successful tag scores a point.</li>
+                        <li>The player with the highest score at the end of the game wins.</li>
+                        <li>Players can use the control panel to steer their cars.</li>
+                        <!-- Add more game rules as necessary -->
+                    </ul>
+                </p>
+            </div>
+        </div>
+        
         <script src="/scripts/frontend/user/controls.js" type="module"></script>
 
         <script src="/scripts/frontend/user/stream.js" defer></script>
+
+        <script>
+            function toggleHelpModal() {
+                const modal = document.getElementById("help-modal");
+                if (modal.style.display === "block") {
+                    modal.style.display = "none";
+                } else {
+                    modal.style.display = "block";
+                }
+            }
+
+            // Close modal when clicking outside of it
+            window.onclick = function(event) {
+                const modal = document.getElementById("help-modal");
+                if (event.target === modal) {
+                    modal.style.display = "none";
+                }
+            };
+
+        </script>
     <% } else { %>
         <!-- Login Form (REPLACED)-->
         <!--
@@ -40,4 +87,10 @@
         -->
     <% } %>
 </body>
+
+
 <%- include('partials/footer') %>
+
+
+
+
