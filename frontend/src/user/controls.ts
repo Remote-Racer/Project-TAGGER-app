@@ -84,7 +84,7 @@ async function controllerUpdate() {
     //const URL = 'http://localhost:3000/upload/player/control'
 
     //Deployment
-    const URL = 'http://project-tagger-app.onrender.com/upload/player/control'
+    const URL = 'https://project-tagger-app.onrender.com/upload/player/control'
 
     const response = await fetch(URL, {
         method: 'POST',

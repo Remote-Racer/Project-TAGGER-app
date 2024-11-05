@@ -9,7 +9,7 @@ async function streamLoop() {
     //const URL = 'http://localhost:3000/player/stream'
 
     //Deployment
-    const URL = 'http://project-tagger-app.onrender.com/player/stream'
+    const URL = 'https://project-tagger-app.onrender.com/player/stream'
 
     const response = await fetch(URL, {
         credentials: 'include'
