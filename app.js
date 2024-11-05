@@ -379,7 +379,9 @@ io.on('connection', (socket) => {
   //Processes requests to end round premaurely
   //Interrupts round timer and initiates round end function with given parameters
   socket.on('winRound', function(data){
-    clearInterval(gameServer.gamesList[data[0]].timer);
-    winRound(data[0], data[1])
+    if(data[0] != -1 && gameServer.gamesList[data[0]].timer){
+      clearInterval(gameServer.gamesList[data[0]].timer);
+      winRound(data[0], data[1])
+    }
   });
 });
