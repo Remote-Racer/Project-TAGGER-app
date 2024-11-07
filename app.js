@@ -46,6 +46,7 @@ app.use(function(req, res, next){
 var users = {
   p1: { name: 'p1' },
   p2: { name: 'p2' },
+  p3: { name: 'p3' },
 };
 
 //Salting and hashing for user passwords
@@ -58,6 +59,11 @@ hash({ password: 'pass2' }, function (err, pass, salt, hash) {
   if (err) throw err;
   users.p2.salt = salt;
   users.p2.hash = hash;
+});
+hash({ password: 'pass3' }, function (err, pass, salt, hash) {
+  if (err) throw err;
+  users.p3.salt = salt;
+  users.p3.hash = hash;
 });
 
 //User Authentication
@@ -84,6 +90,7 @@ const globalInfo = {
         '/',
         '/spectator',
         '/player',
+        '/admin',
         '/test',
         '/docs'
     ]
@@ -127,6 +134,16 @@ app.get('/logout', function(req, res){
     res.redirect('/');
   });
 });
+
+app.get('/admin', function(req, res){
+  res.render('Admin', {
+    name: req.session.user,
+    page: {
+        title: 'Admin'
+    },
+    global: globalInfo
+  })
+})
 
 app.get('/spectator', function(req, res){
     res.render('Spectator', {
@@ -297,26 +314,12 @@ io.on('connection', (socket) => {
     post_id += 1;
 	});
 
-  //Collects specified index and sends request to delete message to all clients
-  socket.on('deleteMsg',function(data){
-		for(var i in SOCKET_LIST){
-			SOCKET_LIST[i].emit('removeFromChat', data);
-		}
-	});
-
   //Game System
   //Populates all clients with current server list
   for(var i in gameServer.gamesList){
     socket.emit('updateGames', i);
   }
-
-  //Creates a new lobby pushes new index to all clients for display
-  socket.on('createLobby', () => {
-    var newLobby = gameServer.newGame();
-    for(var i in SOCKET_LIST){
-      SOCKET_LIST[i].emit('updateGames', newLobby);
-    }
-  });
+  socket.emit('gamesCount', Object.keys(gameServer.gamesList).length);
 
   //Checks if player at current socket can join and responds with a flag indicating output status
   //If first player joins, sends message to present queue message
@@ -334,8 +337,13 @@ io.on('connection', (socket) => {
         for(var i in gameServer.gamesList[data].playerList){
           SOCKET_LIST[i].emit('updateRound', gameServer.gamesList[data].round);
           SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[data].score);
+          SOCKET_LIST[i].emit('enableCam');
         }
-        gameServer.gamesList[data].timer = setTimeout(function(){winRound(data, gameServer.gamesList[data].runner)}, 5000);
+        for(var j in gameServer.gamesList[data].admins){
+          SOCKET_LIST[j].emit('updateRound', gameServer.gamesList[data].round);
+          SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[data].score);
+        }
+        gameServer.gamesList[data].timer = setTimeout(function(){winRound(data, gameServer.gamesList[data].runner)}, 10000);
       }
       for(var i in gameServer.gamesList[data].playerList){
         if(i == socket.id){
@@ -346,10 +354,47 @@ io.on('connection', (socket) => {
           socket.emit('addPlayer', i);
         }
       }
+      for(var j in gameServer.gamesList[data].admins){
+        SOCKET_LIST[j].emit('addPlayer', socket.id);
+      }
     } else {
       socket.emit('joinResponse', [2, -1]);
     }
   })
+
+  socket.on('joinAdmin', function(data){
+    if(socket.lobby != 0){
+      socket.emit('joinResponse', [0, -1]);
+    } else {
+      socket.lobby = data;
+      socket.emit('joinResponse', [1, socket.lobby]);
+      gameServer.joinAdmin([data, socket.id])
+    }
+  })
+
+  socket.on('leaveAdmin', () => {
+    if(socket.lobby != 0){
+      gameServer.leaveAdmin([socket.lobby, socket.id]);
+      socket.lobby = 0;
+    }
+  })
+
+  //Admin Functionality
+  //Collects specified index and sends request to delete message to all clients
+  socket.on('deleteMsg',function(data){
+		for(var i in SOCKET_LIST){
+			SOCKET_LIST[i].emit('removeFromChat', data);
+		}
+	});
+
+  //Creates a new lobby pushes new index to all clients for display
+  socket.on('createLobby', () => {
+    var newLobby = gameServer.newGame();
+    for(var i in SOCKET_LIST){
+      SOCKET_LIST[i].emit('updateGames', newLobby);
+      SOCKET_LIST[i].emit('gamesCount', Object.keys(gameServer.gamesList).length);
+    }
+  });
 
   //Processes request to end round, if game is over, sends final messages to players
   //in the lobby, destroys lobby, and pushes message to delete its listing on all clients
@@ -358,11 +403,17 @@ io.on('connection', (socket) => {
     if(gameServer.endRound(game, player)){
       var endScore = gameServer.gamesList[game].score
       var players = gameServer.gamesList[game].playerList
+      var admins = gameServer.gamesList[game].admins
       var gameWinner = gameServer.endGame(game)
       for(var i in players){
         SOCKET_LIST[i].emit('updateScore', endScore);
         SOCKET_LIST[i].emit('gameOver', [game, gameWinner]);
         SOCKET_LIST[i].lobby = 0;
+      }
+      for(var k in admins){
+        SOCKET_LIST[k].emit('updateScore', endScore);
+        SOCKET_LIST[k].emit('gameOver', [game, gameWinner]);
+        SOCKET_LIST[k].lobby = 0;
       }
       for(var j in SOCKET_LIST){
         SOCKET_LIST[j].emit('removeGame', game);
@@ -372,7 +423,11 @@ io.on('connection', (socket) => {
         SOCKET_LIST[i].emit('updateRound', gameServer.gamesList[game].round);
         SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[game].score);
       }
-      gameServer.gamesList[game].timer = setTimeout(function(){winRound(game, gameServer.gamesList[game].runner)}, 5000);
+      for(var j in gameServer.gamesList[game].admins){
+        SOCKET_LIST[j].emit('updateRound', gameServer.gamesList[game].round);
+        SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[game].score);
+      }
+      gameServer.gamesList[game].timer = setTimeout(function(){winRound(game, gameServer.gamesList[game].runner)}, 10000);
     }
   }
 
@@ -384,4 +439,5 @@ io.on('connection', (socket) => {
       winRound(data[0], data[1])
     }
   });
+
 });

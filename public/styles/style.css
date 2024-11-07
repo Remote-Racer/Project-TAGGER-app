@@ -64,6 +64,7 @@ a:visited {
 #stream-container {
   background-color: green;
   z-index: 0;
+  display: none;
 }
 
 #stream-overlay{
@@ -533,6 +534,27 @@ footer a:hover {
   font-size: 1.5em;
   color: #333;
   cursor: pointer;
+}
+
+#menus {
+  margin-top: 80px;
+}
+
+#lobby-menu {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  font-family: "Racing Sans One", sans-serif;
+  font-size: 1em;
+}
+
+#game-menu {
+  display: none;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 5px;
+  font-family: "Racing Sans One", sans-serif;
+  font-size: 1em;
 }
 
 @media only screen and (max-width: 600px) {

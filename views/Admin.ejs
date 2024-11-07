@@ -1,14 +1,14 @@
 <%- include('partials/header') %>
 <body>
     <%- include('partials/navbar') %>
-
+    
     <div id="score-display">
-        <p id="round-count">Waiting for Round</p>
-        <p><span id="p1-score">0</span> : <span id="p2-score">0</span></p>
+      <p id="round-count">Waiting for Round</p>
+      <p><span id="p1-score">0</span> : <span id="p2-score">0</span></p>
     </div>
 
     <div id="help-container">
-        <button id="help-button" onclick="toggleHelpModal()">Help</button>
+      <button id="help-button" onclick="toggleHelpModal()">Help</button>
     </div>
 
     <div id="menus">
@@ -20,67 +20,17 @@
       <div id="game-menu">
           <p id="player-status">Waiting for players...</p>
           <ul id="player-list"></ul>
+          <a onclick="leave()">Leave</a>
       </div>
     </div>
 
-    <div id="stream-container">
-        <!--
-        <div id="stream-overlay-menu">
-            <button onclick="window.location.href = 'logout'">Logout</button>
-            <button>Help</button>
-            <button id="stream-connect" onclick="streamPlay()">Connect to Stream</button>
-        </div>
-        -->
-        
-        <div id="stream-overlay">
-            <p>Logged in as <%= name.name %></p>
-            <p>This is the score area</p>
-        </div>
-
-        <canvas id="control-canvas"></canvas>
-        <img id="stream" src="data:image/png;base64,<%= stream.frame %>">
-    </div>
-
-    <div id="help-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-button" onclick="toggleHelpModal()">&times;</span>
-            <h2>Game Rules</h2>
-            <p>
-                Here are the rules for the game:
-                <ul>
-                    <li>Each player controls an RC car and tries to "tag" the opponent's car by getting close to it.</li>
-                    <li>The game is timed, and each successful tag scores a point.</li>
-                    <li>The player with the highest score at the end of the game wins.</li>
-                    <li>Players can use the control panel to steer their cars.</li>
-                    Add more game rules as necessary
-                </ul>
-            </p>
-        </div>
-    </div>
-    
-    <script src="/scripts/frontend/user/controls.js" type="module"></script>
-
-    <script src="/scripts/frontend/user/stream.js" defer></script>
-
-    <script>
-        function toggleHelpModal() {
-            const modal = document.getElementById("help-modal");
-            if (modal.style.display === "block") {
-                modal.style.display = "none";
-            } else {
-                modal.style.display = "block";
-            }
-        }
-
-        // Close modal when clicking outside of it
-        window.onclick = function(event) {
-            const modal = document.getElementById("help-modal");
-            if (event.target === modal) {
-                modal.style.display = "none";
-            }
-        };
-
-    </script>
+    <!--
+    <p id="round-count">Waiting for Round</p>
+    <p id="score-count">Score: N/A</p>
+    -->
+    <a onclick="winRound(1)">P1</a>
+    <a onclick="winRound(0)">P2</a><br>
+    <a onclick="createLobby()">Create Lobby</a>
 </body>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -90,6 +40,7 @@
   //var lobbyName = document.getElementById('lobby-name');
   var playerList = document.getElementById('player-list');
   var roundCount = document.getElementById('round-count');
+  var scoreCount = document.getElementById('score-count');
   var lobby = -1;
 
   const socket = io();
@@ -128,7 +79,6 @@
       document.getElementById('game-menu').style.display = 'none';
       lobby = -1;
       roundCount.innerHTML = "Game Over, player " + data[1] + " wins!";
-      document.getElementById('stream-container').style.display = 'none';
     }
     //lobbyName.innerHTML = 'Currently Browsing Lobbies';
     //scoreCount.innerHTML = 'Score: N/A';
@@ -172,18 +122,27 @@
     document.getElementById('lobby-status').innerHTML = data + ' Active Lobbies Found!'
   })
 
-  socket.on('enableCam', () => {
-    document.getElementById('stream-container').style.display = 'initial';
-  })
+  //Initiates round end with passed player value
+  function winRound(player){
+    socket.emit('winRound', [lobby, player]);
+  }
+
+  //Queues server to create a new lobby
+  function createLobby(){
+    socket.emit('createLobby');
+  }
 
   //Sends a request to server to join lobby at the specified id
   function joinGame(id){
-    socket.emit('joinLobby', id);
+    socket.emit('joinAdmin', id);
+  }
+
+  function leave(){
+    socket.emit('leaveAdmin');
+    document.getElementById('lobby-menu').style.display = 'initial';
+    document.getElementById('game-menu').style.display = 'none';
+    playerList.innerHTML = '';
+    lobby = -1;
   }
 </script>
-
 <%- include('partials/footer') %>
-
-
-
-

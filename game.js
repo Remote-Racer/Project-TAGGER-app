@@ -6,6 +6,7 @@ function newGame(){
     gameID = Math.random();
     gamesList[gameID] = {
         playerList: {},
+        admins: {},
         score: [0, 0],
         round: 1,
         id: gameID,
@@ -60,5 +61,14 @@ function joinGame(data){
     }
 }
 
+function joinAdmin(data){
+    console.log('Admin joining lobby ' + data[0]);
+    gamesList[data[0]].admins[data[1]] = data[1];
+}
+
+function leaveAdmin(data){
+    delete gamesList[data[0]].admins[data[1]];
+}
+
 //Exported values for reference in app.js
-module.exports = {gamesList, newGame, endGame, endRound, joinGame};
+module.exports = {gamesList, newGame, endGame, endRound, joinGame, joinAdmin, leaveAdmin};
