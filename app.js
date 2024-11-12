@@ -216,6 +216,11 @@ app.get('/player/stream', (req, res) => {
   res.status(400).send({ error: 'No session for streaming! Please login!' })
 });
 
+app.get('/player/:id/stream', (req, res) => {
+
+  res.status(200).send( playerStreamInfo[ req.params.id ] )
+});
+
 app.post('/login', function (req, res, next) {
     if (!req.body) return res.sendStatus(400)
     authenticate(req.body.username, req.body.password, function(err, user){
