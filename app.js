@@ -141,7 +141,8 @@ app.get('/admin', function(req, res){
     page: {
         title: 'Admin'
     },
-    global: globalInfo
+    global: globalInfo,
+    stream: playerStreamInfo[ req.session.user.name ]
   })
 })
 
@@ -294,12 +295,18 @@ io.on('connection', (socket) => {
   //General
   //Adds connected client to list with a unique identifier, sets default lobby value
   console.log('Client connected');
-  socket.id = Math.random();
+  socket.id = Math.ceil(Math.random() * 1000000);
 	SOCKET_LIST[socket.id] = socket;
   socket.lobby = 0;
 
   //Disconnects client and clears the socket identifier from the list
   socket.on('disconnect', () => {
+    if(socket.lobby != 0){
+      gameServer.handleDisconnect(gameServer.gamesList[socket.lobby], socket.id);
+      for(var i in gameServer.gamesList[socket.lobby].playerList){
+        SOCKET_LIST[i].emit('pause');
+      }
+    }
     console.log('Client disconnected');
     delete SOCKET_LIST[socket.id];
   });
@@ -335,7 +342,7 @@ io.on('connection', (socket) => {
       }
       if(Object.keys(gameServer.gamesList[data].playerList).length == 2){
         for(var i in gameServer.gamesList[data].playerList){
-          SOCKET_LIST[i].emit('updateRound', gameServer.gamesList[data].round);
+          SOCKET_LIST[i].emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].pauseTime]);
           SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[data].score);
           SOCKET_LIST[i].emit('enableCam');
         }
@@ -343,7 +350,13 @@ io.on('connection', (socket) => {
           SOCKET_LIST[j].emit('updateRound', gameServer.gamesList[data].round);
           SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[data].score);
         }
-        gameServer.gamesList[data].timer = setTimeout(function(){winRound(data, gameServer.gamesList[data].runner)}, 10000);
+        if(gameServer.gamesList[data].paused){
+          gameServer.gamesList[data].paused = false;
+        } else {
+          gameServer.gamesList[data].pauseTime = gameServer.gamesList[data].roundLength;
+        }
+        gameServer.gamesList[data].startTime = Date.now();
+        gameServer.gamesList[data].timer = setTimeout(function(){winRound(data, gameServer.gamesList[data].runner)}, gameServer.gamesList[data].pauseTime * 1000);
       }
       for(var i in gameServer.gamesList[data].playerList){
         if(i == socket.id){
@@ -369,6 +382,11 @@ io.on('connection', (socket) => {
       socket.lobby = data;
       socket.emit('joinResponse', [1, socket.lobby]);
       gameServer.joinAdmin([data, socket.id])
+      for(var i in gameServer.gamesList[data].playerList){
+        socket.emit('addPlayer', i);
+      }
+      socket.emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].roundLength]);
+      socket.emit('updateScore', gameServer.gamesList[data].score);
     }
   })
 
@@ -388,8 +406,8 @@ io.on('connection', (socket) => {
 	});
 
   //Creates a new lobby pushes new index to all clients for display
-  socket.on('createLobby', () => {
-    var newLobby = gameServer.newGame();
+  socket.on('createLobby', function(data){
+    var newLobby = gameServer.newGame(data);
     for(var i in SOCKET_LIST){
       SOCKET_LIST[i].emit('updateGames', newLobby);
       SOCKET_LIST[i].emit('gamesCount', Object.keys(gameServer.gamesList).length);
@@ -420,14 +438,14 @@ io.on('connection', (socket) => {
       }
     } else {
       for(var i in gameServer.gamesList[game].playerList){
-        SOCKET_LIST[i].emit('updateRound', gameServer.gamesList[game].round);
+        SOCKET_LIST[i].emit('updateRound', [gameServer.gamesList[game].round, gameServer.gamesList[game].roundLength]);
         SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[game].score);
       }
       for(var j in gameServer.gamesList[game].admins){
         SOCKET_LIST[j].emit('updateRound', gameServer.gamesList[game].round);
         SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[game].score);
       }
-      gameServer.gamesList[game].timer = setTimeout(function(){winRound(game, gameServer.gamesList[game].runner)}, 10000);
+      gameServer.gamesList[game].timer = setTimeout(function(){winRound(game, gameServer.gamesList[game].runner)}, gameServer.gamesList[game].roundLength * 1000);
     }
   }
 
@@ -435,8 +453,17 @@ io.on('connection', (socket) => {
   //Interrupts round timer and initiates round end function with given parameters
   socket.on('winRound', function(data){
     if(data[0] != -1 && gameServer.gamesList[data[0]].timer){
-      clearInterval(gameServer.gamesList[data[0]].timer);
+      clearTimeout(gameServer.gamesList[data[0]].timer);
       winRound(data[0], data[1])
+    }
+  });
+
+  socket.on('pauseGame', () => {
+    if(socket.lobby != 0){
+      gameServer.pauseGame(gameServer.gamesList[socket.lobby]);
+      for(var i in gameServer.gamesList[socket.lobby].playerList){
+        SOCKET_LIST[i].emit('pause');
+      }
     }
   });
 

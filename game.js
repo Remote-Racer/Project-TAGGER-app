@@ -2,8 +2,8 @@
 var gamesList = {};
 
 //Constructor for lobby objects
-function newGame(){
-    gameID = Math.random();
+function newGame(data){
+    gameID = Math.ceil(Math.random() * 1000000);
     gamesList[gameID] = {
         playerList: {},
         admins: {},
@@ -11,7 +11,11 @@ function newGame(){
         round: 1,
         id: gameID,
         runner: false,
-        timer: null
+        timer: null,
+        startTime: 0,
+        pauseTime: data,
+        paused: false,
+        roundLength: data
     }
     return gameID;
 }
@@ -70,5 +74,17 @@ function leaveAdmin(data){
     delete gamesList[data[0]].admins[data[1]];
 }
 
+function handleDisconnect(lobby, player){
+    pauseGame(lobby);
+    delete lobby.playerList[player];
+}
+
+function pauseGame(lobby){
+    lobby.pauseTime -= (Date.now()- lobby.startTime)/1000;
+    console.log('paused at ' + lobby.pauseTime + ' seconds left');
+    clearTimeout(lobby.timer);
+    lobby.paused = true;
+}
+
 //Exported values for reference in app.js
-module.exports = {gamesList, newGame, endGame, endRound, joinGame, joinAdmin, leaveAdmin};
+module.exports = {gamesList, newGame, endGame, endRound, joinGame, joinAdmin, leaveAdmin, handleDisconnect, pauseGame};
