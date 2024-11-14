@@ -20,6 +20,11 @@
 <script>const socket = io();</script>
 <script src="/scripts/frontend/player_shared.js" defer></script>
 <script>
+  //Inserts new lobbies with index passed by socket
+  socket.on('updateGames', function(data){
+    gameList.innerHTML += '<li id="' + data + '"><a onclick="joinGame(' + data + ')">' + data + '</a></li>';
+  });
+
   //Initiates round end with passed player value
   function winRound(player){
     socket.emit('winRound', [lobby, player]);

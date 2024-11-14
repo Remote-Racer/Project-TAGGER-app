@@ -8,9 +8,16 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>const socket = io();</script>
 <script src="/scripts/frontend/player_shared.js" defer></script>
+<script>
+    //Inserts new lobbies with index passed by socket
+    socket.on('updateGames', function(data){
+        gameList.innerHTML += '<li id="' + data + '"><a onclick="joinGame(' + data + ')">' + data + '</a></li>';
+    });
+
+    //Sends a request to server to join lobby at the specified id
+    function joinGame(id){
+    socket.emit('joinLobby', id);
+    }
+</script>
 
 <%- include('partials/footer') %>
-
-
-
-

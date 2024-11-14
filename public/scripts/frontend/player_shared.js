@@ -6,11 +6,6 @@ var roundCount = document.getElementById('round-count');
 var lobby = -1;
 var timer = null;
 
-//Inserts new lobbies with index passed by socket
-socket.on('updateGames', function(data){
-  gameList.innerHTML += '<li id="' + data + '"><a onclick="joinGame(' + data + ')">' + data + '</a></li>';
-});
-
 //Removes lobby at specified index
 socket.on('removeGame', function(data){
   document.getElementById(data).remove();
@@ -93,11 +88,6 @@ socket.on('pause', () => {
   clearInterval(timer);
   document.getElementById('round-timer').innerHTML = 'PAUSE';
 });
-
-//Sends a request to server to join lobby at the specified id
-function joinGame(id){
-  socket.emit('joinLobby', id);
-}
 
 function setTimer(time){
   if(timer != null){
