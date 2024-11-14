@@ -84,7 +84,7 @@ async function controllerUpdate() {
     //const URL = 'http://localhost:3000/upload/player/control'
 
     //Deployment
-    const URL = 'https://52.15.171.236:3000/upload/player/control'
+    const URL = 'http://52.15.171.236:3000/upload/player/control'
 
     const response = await fetch(URL, {
         method: 'POST',

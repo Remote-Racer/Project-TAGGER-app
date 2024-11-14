@@ -14,11 +14,13 @@ const navbarViews: NavbarView = {
     '/': {
         '/test': 'Test',
         '/player': 'Play',
-        '/spectator': 'Spectate'
+        '/spectator': 'Spectate',
+        '/admin': 'Admin'
     },
     '/test': {
         '/test': 'Test',
         '/player': 'Play',
+        '/admin': 'Admin',
         '/spectator': 'Spectate'
     },
     '/player': {
@@ -28,6 +30,12 @@ const navbarViews: NavbarView = {
     '/docs': {
         '/test': 'Test',
         '/player': 'Play',
+        '/spectator': 'Spectate'
+    },
+    '/admin': {
+        '/test': 'Test',
+        '/player': 'Play',
+        '/admin': 'Admin',
         '/spectator': 'Spectate'
     }
 }

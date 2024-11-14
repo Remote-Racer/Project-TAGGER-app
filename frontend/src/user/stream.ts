@@ -9,7 +9,7 @@ async function streamLoop() {
     //const URL = 'http://localhost:3000/player/stream'
 
     //Deployment
-    const URL = 'https://http://52.15.171.236:3000/player/stream'
+    const URL = 'http://52.15.171.236:3000/player/stream'
 
     const response = await fetch(URL, {
         credentials: 'include'
