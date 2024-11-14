@@ -355,7 +355,7 @@ io.on('connection', (socket) => {
           SOCKET_LIST[i].emit('enableCam');
         }
         for(var j in gameServer.gamesList[data].admins){
-          SOCKET_LIST[j].emit('updateRound', gameServer.gamesList[data].round);
+          SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].pauseTime]);
           SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[data].score);
         }
         if(gameServer.gamesList[data].paused){
