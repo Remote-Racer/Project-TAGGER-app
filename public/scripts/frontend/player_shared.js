@@ -6,6 +6,11 @@ var roundCount = document.getElementById('round-count');
 var lobby = -1;
 var timer = null;
 
+//Inserts new lobbies with index passed by socket
+socket.on('updateGames', function(data){
+  gameList.innerHTML += '<li class="server-listing" id="' + data + '"><div><p>Lobby ' + data + '</p><a onclick="joinGame(' + data + ')">Join</a></div></li>';
+});
+
 //Removes lobby at specified index
 socket.on('removeGame', function(data){
   document.getElementById(data).remove();

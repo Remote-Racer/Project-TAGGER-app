@@ -571,3 +571,60 @@ footer a:hover {
   }
   
 }
+
+#game-list{
+  list-style-type: none;
+}
+
+.server-listing{
+  padding: 10px;
+  background-color:cornflowerblue;
+  border-style: outset;
+  border-color:royalblue;
+  width: 250px;
+}
+
+.server-listing p{
+  display: inline;
+}
+
+.server-listing a{
+  display: inline;
+  float: right;
+}
+
+#admin{
+  display: block;
+  padding: 8px 16px;
+}
+
+#admin-panel{
+  font-family: "Racing Sans One", sans-serif;
+  font-size: 1em;
+  width: 300px;
+  padding: 10px;
+  background-color:cornflowerblue;
+  border-style: outset;
+  border-color:royalblue;
+}
+
+#round-panel{
+  background-color:rgb(65, 120, 222);
+  border-style: outset;
+  border-color:rgb(35, 82, 225);
+}
+
+#lobby-panel{
+  background-color:rgb(65, 120, 222);
+  border-style: outset;
+  border-color:rgb(35, 82, 225);
+}
+
+.round-button{
+  display: inline-block;
+  text-align: center;
+  width: 150px;
+  background-color:rgb(35, 90, 193);
+  border-style: outset;
+  border-color:rgb(12, 50, 164);
+}
