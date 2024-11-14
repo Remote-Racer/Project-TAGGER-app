@@ -5,29 +5,20 @@ const navbarViews = {
     '/': {
         '/test': 'Test',
         '/player': 'Play',
-        '/admin': 'Admin',
         '/spectator': 'Spectate'
     },
     '/test': {
         '/test': 'Test',
         '/player': 'Play',
-        '/admin': 'Admin',
         '/spectator': 'Spectate'
     },
     '/player': {
         '/test': 'Test',
         '/docs': 'Documentation'
     },
-    '/admin': {
-        '/test': 'Test',
-        '/player': 'Play',
-        '/admin': 'Admin',
-        '/spectator': 'Spectate'
-    },
     '/docs': {
         '/test': 'Test',
         '/player': 'Play',
-        '/admin': 'Admin',
         '/spectator': 'Spectate'
     }
 };

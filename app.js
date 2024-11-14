@@ -115,6 +115,8 @@ for( let user in users ) {
     frame: offlineImage,
     type: 'image/jpeg' 
   }
+
+  playerControlInfo[ user ] = [0, 0];
 }
 
 //Routes

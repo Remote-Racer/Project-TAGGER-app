@@ -52,7 +52,7 @@ function controllerUpdate() {
         //Local testing
         //const URL = 'http://localhost:3000/upload/player/control'
         //Deployment
-        const URL = 'https://project-tagger-app.onrender.com/upload/player/control';
+        const URL = 'https://52.15.171.236:3000/upload/player/control';
         const response = yield fetch(URL, {
             method: 'POST',
             headers: {

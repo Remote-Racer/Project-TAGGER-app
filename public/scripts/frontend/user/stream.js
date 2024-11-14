@@ -15,7 +15,7 @@ function streamLoop() {
         //Local testing
         //const URL = 'http://localhost:3000/player/stream'
         //Deployment
-        const URL = 'https://project-tagger-app.onrender.com/player/stream';
+        const URL = 'https://http://52.15.171.236:3000/player/stream';
         const response = yield fetch(URL, {
             credentials: 'include'
         });
