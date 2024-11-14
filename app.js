@@ -393,8 +393,10 @@ io.on('connection', (socket) => {
       for(var i in gameServer.gamesList[data].playerList){
         socket.emit('addPlayer', i);
       }
-      socket.emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].roundLength]);
-      socket.emit('updateScore', gameServer.gamesList[data].score);
+      if(Object.keys(gameServer.gamesList[data].playerList).length == 2){
+        socket.emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].roundLength]);
+        socket.emit('updateScore', gameServer.gamesList[data].score);
+      }
     }
   })
 

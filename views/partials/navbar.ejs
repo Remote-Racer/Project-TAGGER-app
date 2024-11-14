@@ -37,9 +37,9 @@
             <% if(endpoint != '/player' && endpoint != '/admin'){ %>
                 <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
             <% } else if(name) { %>
-                <% if(endpoint == '/player' && name.name != 'p1'){ %>
+                <% if(endpoint == '/player' && name.name != 'p3'){ %>
                     <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
-                <% } else if(endpoint == '/admin' && name.name == 'p1'){ %>
+                <% } else if(endpoint == '/admin' && name.name == 'p3'){ %>
                     <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
                 <% } %>
             <% } %>
