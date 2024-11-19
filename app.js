@@ -452,7 +452,7 @@ io.on('connection', (socket) => {
         SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[game].score);
       }
       for(var j in gameServer.gamesList[game].admins){
-        SOCKET_LIST[j].emit('updateRound', gameServer.gamesList[game].round);
+        SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[game].round, gameServer.gamesList[game].roundLength]);
         SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[game].score);
       }
       gameServer.gamesList[game].timer = setTimeout(function(){winRound(game, gameServer.gamesList[game].runner)}, gameServer.gamesList[game].roundLength * 1000);
@@ -469,10 +469,44 @@ io.on('connection', (socket) => {
   });
 
   socket.on('pauseGame', () => {
-    if(socket.lobby != 0){
+    if(socket.lobby != 0 && !gameServer.gamesList[socket.lobby].paused){
       gameServer.pauseGame(gameServer.gamesList[socket.lobby]);
       for(var i in gameServer.gamesList[socket.lobby].playerList){
         SOCKET_LIST[i].emit('pause');
+      }
+      for(var j in gameServer.gamesList[socket.lobby].admins){
+        SOCKET_LIST[j].emit('pause');
+      }
+    }
+  });
+
+  socket.on('unpauseGame', () => {
+    if(socket.lobby != 0 && gameServer.gamesList[socket.lobby].paused){
+      gameServer.gamesList[socket.lobby].startTime = Date.now();
+      gameServer.gamesList[socket.lobby].timer = setTimeout(function(){winRound(socket.lobby, gameServer.gamesList[socket.lobby].runner)}, gameServer.gamesList[socket.lobby].pauseTime * 1000);
+      gameServer.gamesList[socket.lobby].paused = false;
+      for(var i in gameServer.gamesList[socket.lobby].playerList){
+        SOCKET_LIST[i].emit('updateRound', [gameServer.gamesList[socket.lobby].round, gameServer.gamesList[socket.lobby].pauseTime]);
+      }
+      for(var j in gameServer.gamesList[socket.lobby].admins){
+        SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[socket.lobby].round, gameServer.gamesList[socket.lobby].pauseTime]);
+      }
+    }
+  });
+
+  socket.on('setTimer', function(data){
+    if(socket.lobby != 0){
+      console.log('setting timer to ' + data);
+      clearTimeout(gameServer.gamesList[socket.lobby].timer);
+      gameServer.gamesList[socket.lobby].pauseTime = data;
+      gameServer.gamesList[socket.lobby].startTime = Date.now();
+      gameServer.gamesList[socket.lobby].timer = setTimeout(function(){winRound(socket.lobby, gameServer.gamesList[socket.lobby].runner)}, data * 1000);
+      gameServer.gamesList[socket.lobby].paused = false;
+      for(var i in gameServer.gamesList[socket.lobby].playerList){
+        SOCKET_LIST[i].emit('updateRound', [gameServer.gamesList[socket.lobby].round, data]);
+      }
+      for(var j in gameServer.gamesList[socket.lobby].admins){
+        SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[socket.lobby].round, data]);
       }
     }
   });

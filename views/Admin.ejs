@@ -6,14 +6,27 @@
   <div id="admin">
     <div id="admin-panel">
       <h3>Admin Controls:</h3>
+
       <div id="round-panel">
         <p>Round Controls</p>
+        <a class="round-button" onclick="pauseGame()">Pause</a>
+        <a class="round-button" onclick="unpauseGame()">Resume</a>
+        <p>Set Timer</p><input id="timerInput" type="number"></input><br>
+        <a class="round-button" onclick="updateTimer()">Confirm</a>
         <p>Choose Round Winner</p>
         <a class="round-button" onclick="winRound(1)">Player 1</a>
         <a class="round-button" onclick="winRound(0)">Player 2</a><br>
       </div><br>
+
       <div id="lobby-panel">
         <p>Lobby Creation</p>
+        <label for="roundSelect">Number of Rounds</label>
+        <select name="roundSelect" id="roundSelect">
+          <option value="3">3</option>
+          <option value="5">5</option>
+          <option value="7">7</option>
+        </select><br>
+
         <label for="timerSelect">Round Length:</label>
         <select name="timerSelect" id="timerSelect">
           <option value="5">5</option>
@@ -22,9 +35,8 @@
           <option value="30">30</option>
           <option value="3600">TESTING</option>
         </select>
-        <br><a onclick="createLobby()">Create</a><br>
+        <br><a class="round-button" onclick="createLobby()">Create</a><br>
       </div>
-      <!-- <a onclick="pauseGame()">PAUSE</a><br> -->
     </div>
   </div>
 </body>
@@ -40,7 +52,7 @@
 
   //Queues server to create a new lobby
   function createLobby(){
-    socket.emit('createLobby', document.getElementById('timerSelect').value);
+    socket.emit('createLobby', [document.getElementById('timerSelect').value, document.getElementById('roundSelect').value]);
   }
 
   //Sends a request to server to join lobby at the specified id
@@ -58,6 +70,17 @@
 
   function pauseGame(){
     socket.emit('pauseGame');
+  }
+
+  function unpauseGame(){
+    socket.emit('unpauseGame');
+  }
+
+  function updateTimer(){
+    if(document.getElementById('timerInput').value){
+      console.log(document.getElementById('timerInput').value);
+      socket.emit('setTimer', document.getElementById('timerInput').value);
+    }
   }
 </script>
 <%- include('partials/footer') %>

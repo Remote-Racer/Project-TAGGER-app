@@ -9,13 +9,14 @@ function newGame(data){
         admins: {},
         score: [0, 0],
         round: 1,
+        roundCount: data[1],
         id: gameID,
         runner: false,
         timer: null,
         startTime: 0,
-        pauseTime: data,
+        pauseTime: data[0],
         paused: false,
-        roundLength: data
+        roundLength: data[0]
     }
     return gameID;
 }
@@ -45,8 +46,9 @@ function endRound(gameID, player){
     }
     gamesList[gameID].round += 1;
     gamesList[gameID].runner = !gamesList[gameID].runner;
+    gamesList[gameID].pauseTime = gamesList[gameID].roundLength;
 
-    if(gamesList[gameID].round > 3 || gamesList[gameID].score[0] == 2 || gamesList[gameID].score[1] == 2){
+    if(gamesList[gameID].round > gamesList[gameID].roundCount || gamesList[gameID].score[0] == Math.ceil(gamesList[gameID].roundCount/2) || gamesList[gameID].score[1] == Math.ceil(gamesList[gameID].roundCount/2)){
         return true;
     }
     return false;
