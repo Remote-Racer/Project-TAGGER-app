@@ -1,28 +1,26 @@
 <%- include('partials/header') %>
 <body>
     <%- include('partials/navbar') %>
-    <!--
-    <section id="stream-container">
-      <button>Help</button>
-      <div id="stream-overlay">
-        <p>This is the score area</p>
-      </div>
-      <iframe id="embedded-stream" width="1280" height="720" src="https://www.youtube.com/embed/5FrhtahQiRc" title="Heavy Is The Crown ft. Linkin Park (Official Music Video) | League of Legends Worlds 2024 Anthem" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    </section>
-    -->
+    <iframe
+      src="https://player.twitch.tv/?channel=amolgupta1&parent=52.15.171.236"
+      height="500"
+      width="500"
+      allowfullscreen>
+    </iframe>
+
     <script>var isAdmin = false; //Flag for admin privileges, initially set to be false</script>
-    <% if(name && name.name == 'p1'){ %>
+    <% if(name && name.name == 'p3'){ %>
       <script>isAdmin = true; //After session value is passed, set flag if user has the correct username</script>
     <% } %>
-    <section>
-      <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
+    <div id="chat">
+      <div id="chat-text" style="width:100vw;min-height:100px;overflow-y:scroll">
         <div>Live Chat</div>
       </div>
 
       <form id="chat-form">
-        <input id="chat-input" type="text" style="width:500px"></input>
+        <input id="chat-input" type="text" style="width:100vw"></input>
       </form>
-    </section>
+    </div>
 
     <script src="/socket.io/socket.io.js"></script>
     <script>

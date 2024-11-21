@@ -628,3 +628,8 @@ footer a:hover {
   border-style: outset;
   border-color:rgb(12, 50, 164);
 }
+
+#chat{
+  position:absolute;
+  top:110vh;
+}
