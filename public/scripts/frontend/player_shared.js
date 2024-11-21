@@ -42,6 +42,7 @@ socket.on('gameOver', function(data){
     lobby = -1;
     roundCount.innerHTML = "Game Over, player " + data[1] + " wins!";
     document.getElementById('stream-container').style.display = 'none';
+    ocument.getElementById('score-display').style.display = 'none';
   }
   //lobbyName.innerHTML = 'Currently Browsing Lobbies';
   //scoreCount.innerHTML = 'Score: N/A';
@@ -86,7 +87,9 @@ socket.on('gamesCount', function(data){
 });
 
 socket.on('enableCam', () => {
+  document.getElementById('player-status').style.display = 'none';
   document.getElementById('stream-container').style.display = 'initial';
+  document.getElementById('score-display').style.display = 'block';
 });
 
 socket.on('pause', () => {

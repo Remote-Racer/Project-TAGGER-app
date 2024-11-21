@@ -238,6 +238,14 @@ button {
   pointer-events: none;
 }
 
+footer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  text-align: center;
+}
+
 footer a:hover {
 
   color: var(--racing-red);
@@ -325,9 +333,8 @@ footer a:hover {
 /* Control Canvas */
 
 #control-canvas {
-
   position: absolute;
-
+  width: 100%;
   margin-top: 0;
 }
 
@@ -462,6 +469,7 @@ footer a:hover {
 }
 
 #score-display {
+  display: none;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
@@ -537,10 +545,12 @@ footer a:hover {
 }
 
 #menus {
+  position: absolute;
   margin-top: 80px;
 }
 
 #lobby-menu {
+  margin-top: 45px;
   padding: 8px 16px;
   border: none;
   border-radius: 5px;
@@ -573,7 +583,10 @@ footer a:hover {
 }
 
 #game-list{
+  display: flex;
   list-style-type: none;
+  flex-direction: row;
+  flex-wrap: wrap;
 }
 
 .server-listing{
@@ -594,6 +607,8 @@ footer a:hover {
 }
 
 #admin{
+  margin-left: 55%;
+    width: 40%;
   display: block;
   padding: 8px 16px;
 }
@@ -627,4 +642,19 @@ footer a:hover {
   background-color:rgb(35, 90, 193);
   border-style: outset;
   border-color:rgb(12, 50, 164);
+}
+
+
+.round-button {
+  padding: 10px 15px;
+  margin: 5px;
+  background-color: #007BFF;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  cursor: pointer;
+  border: none;
+}
+.round-button:hover {
+  background-color: #0056b3;
 }
