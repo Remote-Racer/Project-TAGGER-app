@@ -32,6 +32,7 @@ socket.on('updateScore', function(data){
 //Replaces round counter with waiting message until second player connects
 socket.on('updateQueue', () => {
   roundCount.innerHTML = 'Starting Soon...';
+  document.getElementById('player-status').innerHTML = 'Players In Game:';
 })
 
 //Displays win message, clears other text fields, and resets flag for joining new lobbies
@@ -42,6 +43,7 @@ socket.on('gameOver', function(data){
     lobby = -1;
     roundCount.innerHTML = "Game Over, player " + data[1] + " wins!";
     document.getElementById('stream-container').style.display = 'none';
+    document.getElementById('player-status').innerHTML = 'Not Currently In Game';
     ocument.getElementById('score-display').style.display = 'none';
   }
   //lobbyName.innerHTML = 'Currently Browsing Lobbies';
@@ -79,24 +81,34 @@ socket.on('joinResponse', function(data){
 //Adds the given player index to the player list
 socket.on('addPlayer', function(data){
   console.log(data + ' joined the game.');
-  playerList.innerHTML += '<li>' + data + '</li>';
+  playerList.innerHTML += '<li id="' + data + '">' + data + '</li>';
 });
 
+//Removes a specified player listing for the given index
+socket.on('removePlayer', function(data){
+  document.getElementById(data).remove();
+  document.getElementById('player-status').innerHTML = 'Waiting for players...';
+})
+
+//Displays the current number of active lobbies when an update is sent from the server
 socket.on('gamesCount', function(data){
   document.getElementById('lobby-status').innerHTML = data + ' Active Lobbies Found!'
 });
 
+//Enables the stream display when a request is sent by the server at the start of a game
 socket.on('enableCam', () => {
   document.getElementById('player-status').style.display = 'none';
   document.getElementById('stream-container').style.display = 'initial';
   document.getElementById('score-display').style.display = 'block';
 });
 
+//Stops clientside timer and replaces countdown with a pause indicator
 socket.on('pause', () => {
   clearInterval(timer);
   document.getElementById('round-timer').innerHTML = 'PAUSE';
 });
 
+//Clears any active timers and starts a countdown with the specified length
 function setTimer(time){
   if(timer != null){
     clearInterval(timer);

@@ -67,20 +67,32 @@ function joinGame(data){
     }
 }
 
+//Function for adding admin clients to a lobby
+//Takes input of array with lobby index at 0 and admin index at 1
+//Adds admin index to corresponding admin list in the given lobby
 function joinAdmin(data){
     console.log('Admin joining lobby ' + data[0]);
     gamesList[data[0]].admins[data[1]] = data[1];
 }
 
+//Handler for admin exiting
+//Takes input of array with lobby index at 0 and admin index at 1
+//Deletes specified admin id from the amin list of the given lobby
 function leaveAdmin(data){
     delete gamesList[data[0]].admins[data[1]];
 }
 
+//Handler for player disconnects
+//Takes input of lobby index and player index
+//Calls pause function for the lobby and removes the specified player from the player list
 function handleDisconnect(lobby, player){
     pauseGame(lobby);
     delete lobby.playerList[player];
 }
 
+//Function for pausing an active game
+//Takes input of lobby index
+//Clears timeout function for current round, stores value of timer at the time of pausing, and enables pause flag
 function pauseGame(lobby){
     lobby.pauseTime -= (Date.now()- lobby.startTime)/1000;
     console.log('paused at ' + lobby.pauseTime + ' seconds left');

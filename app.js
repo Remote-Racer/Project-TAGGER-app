@@ -313,6 +313,11 @@ io.on('connection', (socket) => {
       gameServer.handleDisconnect(gameServer.gamesList[socket.lobby], socket.id);
       for(var i in gameServer.gamesList[socket.lobby].playerList){
         SOCKET_LIST[i].emit('pause');
+        SOCKET_LIST[i].emit('removePlayer', socket.id);
+      }
+      for(var j in gameServer.gamesList[socket.lobby].admins){
+        SOCKET_LIST[j].emit('pause');
+        SOCKET_LIST[j].emit('removePlayer', socket.id);
       }
     }
     console.log('Client disconnected');
@@ -383,6 +388,9 @@ io.on('connection', (socket) => {
     }
   })
 
+  //Checks if admin can enter a lobby and sends a corresponding flag
+  //Admins are added to a separate list from the players
+  //If round is active, sends updates for round and score
   socket.on('joinAdmin', function(data){
     if(socket.lobby != 0){
       socket.emit('joinResponse', [0, -1]);
@@ -390,9 +398,9 @@ io.on('connection', (socket) => {
       socket.lobby = data;
       socket.emit('joinResponse', [1, socket.lobby]);
       gameServer.joinAdmin([data, socket.id])
-      for(var i in gameServer.gamesList[data].playerList){
+      /* for(var i in gameServer.gamesList[data].playerList){
         socket.emit('addPlayer', i);
-      }
+      } */
       if(Object.keys(gameServer.gamesList[data].playerList).length == 2){
         socket.emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].roundLength]);
         socket.emit('updateScore', gameServer.gamesList[data].score);
@@ -400,6 +408,8 @@ io.on('connection', (socket) => {
     }
   })
 
+  //Handles exiting lobbies for admins
+  //If lobby is not default value, calls corresponding handler and resets socket lobby value
   socket.on('leaveAdmin', () => {
     if(socket.lobby != 0){
       gameServer.leaveAdmin([socket.lobby, socket.id]);
@@ -468,6 +478,8 @@ io.on('connection', (socket) => {
     }
   });
 
+  //Processes requests to pause round timer
+  //Given a valid lobby with no pause flag, calls pause handler function and emits update for all clients
   socket.on('pauseGame', () => {
     if(socket.lobby != 0 && !gameServer.gamesList[socket.lobby].paused){
       gameServer.pauseGame(gameServer.gamesList[socket.lobby]);
@@ -480,6 +492,8 @@ io.on('connection', (socket) => {
     }
   });
 
+  //Processes requests to pause round timer
+  //Given a valid lobby with pause flag, sets new timer and emits an update to all clients
   socket.on('unpauseGame', () => {
     if(socket.lobby != 0 && gameServer.gamesList[socket.lobby].paused){
       gameServer.gamesList[socket.lobby].startTime = Date.now();
@@ -494,6 +508,8 @@ io.on('connection', (socket) => {
     }
   });
 
+  //Processes requests to modify round timer
+  //Given a valid lobby, starts a new round timer with given value, unpauses game, and updates clients
   socket.on('setTimer', function(data){
     if(socket.lobby != 0){
       console.log('setting timer to ' + data);
