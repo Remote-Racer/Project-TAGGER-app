@@ -362,6 +362,7 @@ io.on('connection', (socket) => {
         for(var j in gameServer.gamesList[data].admins){
           SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].pauseTime]);
           SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[data].score);
+          SOCKET_LIST[j].emit('enableAdmin');
         }
         if(gameServer.gamesList[data].paused){
           gameServer.gamesList[data].paused = false;
@@ -404,6 +405,7 @@ io.on('connection', (socket) => {
       if(Object.keys(gameServer.gamesList[data].playerList).length == 2){
         socket.emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].roundLength]);
         socket.emit('updateScore', gameServer.gamesList[data].score);
+        socket.emit('enableAdmin');
       }
     }
   })

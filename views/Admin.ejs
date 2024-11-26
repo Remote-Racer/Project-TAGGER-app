@@ -47,6 +47,11 @@
 <script>const socket = io();</script>
 <script src="/scripts/frontend/player_shared.js" defer></script>
 <script>
+  //Enables the timer when a request is sent by the server at the start of a game
+  socket.on('enableAdmin', () => {
+    document.getElementById('score-display').style.display = 'block';
+  });
+
   //Initiates round end with passed player value
   function winRound(player){
     socket.emit('winRound', [lobby, player]);
