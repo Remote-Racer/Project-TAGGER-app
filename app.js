@@ -18,19 +18,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(fileUpload())
 
-var hash = require('pbkdf2-password')()
 var path = require('path');
-var session = require('express-session');
 const { equal } = require("assert");
 const e = require("express");
 
-app.use(session({
-  resave: false, // don't save session if unmodified
-  saveUninitialized: false, // don't create session until something stored
-  secret: 'shhhh, very secret'
-}));
+var cookieParser = require('cookie-parser');
+app.use(cookieParser());
 
-app.use(function(req, res, next){
+/* app.use(function(req, res, next){
   var err = req.session.error;
   var msg = req.session.success;
   delete req.session.error;
@@ -39,48 +34,42 @@ app.use(function(req, res, next){
   if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
   if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
   next();
-});
+}); */
 
 //AUTHENTICATION
 //--------------------------------------------------
 //User list
 var users = {
-  p1: { name: 'p1' },
-  p2: { name: 'p2' },
-  p3: { name: 'p3' },
+  p1: {password: 'pass1', isAdmin: false, loggedIn: false},
+  p2: {password: 'pass2', isAdmin: false, loggedIn: false},
+  p3: {password: 'pass3', isAdmin: true, loggedIn: false},
 };
-
-//Salting and hashing for user passwords
-hash({ password: 'pass1' }, function (err, pass, salt, hash) {
-  if (err) throw err;
-  users.p1.salt = salt;
-  users.p1.hash = hash;
-});
-hash({ password: 'pass2' }, function (err, pass, salt, hash) {
-  if (err) throw err;
-  users.p2.salt = salt;
-  users.p2.hash = hash;
-});
-hash({ password: 'pass3' }, function (err, pass, salt, hash) {
-  if (err) throw err;
-  users.p3.salt = salt;
-  users.p3.hash = hash;
-});
 
 //User Authentication
 function authenticate(name, pass, fn) {
-  if (!module.parent) console.log('authenticating %s:%s', name, pass);
-  var user = users[name];
-  // query the db for the given username
-  if (!user) return fn(null, null)
-  // apply the same algorithm to the POSTed password, applying
-  // the hash against the pass / salt, if there is a match we
-  // found the user
-  hash({ password: pass, salt: user.salt }, function (err, pass, salt, hash) {
-    if (err) return fn(err);
-    if (hash === user.hash) return fn(null, user)
-    fn(null, null)
-  });
+  console.log('authenticating %s:%s', name, pass);
+  if(users[name]){
+    if(users[name].password == pass && !users[name].loggedIn){
+      users[name].loggedIn = true;
+      fn(name);
+    } else {
+      fn(null);
+    }
+  } else {
+    fn(null);
+  }
+}
+
+function restrictPage(user, admin, fn){
+  if(user){
+    if((user && !admin) || (users[user].isAdmin && admin)){
+      fn(true);
+    } else {
+      fn(false);
+    }
+  } else {
+    fn(false);
+  }
 }
 
 //ROUTING
@@ -121,8 +110,9 @@ for( let user in users ) {
 
 //Routes
 app.get('/', function(req, res){
+    //console.log(req.cookies.name);
     res.render('Home', {
-        name: req.session.user,
+        name: req.cookies.name,
         page: {
             title: 'Home'
         },
@@ -133,25 +123,35 @@ app.get('/', function(req, res){
 app.get('/logout', function(req, res){
   // destroy the user's session to log them out
   // will be re-created next request
-  req.session.destroy(function(){
-    res.redirect('/');
-  });
+  if(req.cookies.name){
+    users[req.cookies.name].loggedIn = false;
+  }
+  res.clearCookie('name');
+  res.redirect('/');
 });
 
 app.get('/admin', function(req, res){
-  res.render('Admin', {
-    name: req.session.user,
-    page: {
-        title: 'Admin'
-    },
-    global: globalInfo,
-    stream: playerStreamInfo[ req.session.user.name ]
+  restrictPage(req.cookies.name, true, function(allowed){
+    if(allowed){
+      res.render('Admin', {
+        name: req.cookies.name,
+        page: {
+            title: 'Admin'
+        },
+        global: globalInfo,
+        stream: playerStreamInfo[ req.cookies.name ]
+      })
+    } else {
+      console.log('Redirected: need to be admin')
+      res.redirect('/')
+    }
   })
 })
 
 app.get('/spectator', function(req, res){
     res.render('Spectator', {
-        name: req.session.user,
+        name: req.cookies.name,
+        isAdmin: req.cookies.name ? users[req.cookies.name].isAdmin : false,
         page: {
             title: 'Spectator'
         },
@@ -161,7 +161,7 @@ app.get('/spectator', function(req, res){
 
 app.get('/test', function(req, res){
     res.render('TestView', {
-        name: req.session.user,
+        name: req.cookies.name,
         page: {
             title: 'Test Page'
         },
@@ -171,7 +171,7 @@ app.get('/test', function(req, res){
 
 app.get('/docs', function(req, res){
   res.render('Documentation', {
-      name: req.session.user,
+      name: req.cookies.name,
       page: {
           title: 'Documentation'
       },
@@ -180,14 +180,21 @@ app.get('/docs', function(req, res){
 });
 
 app.get('/player', function(req, res){
-    res.render('Player', {
-        name: req.session.user,
+  restrictPage(req.cookies.name, false, function(allowed){
+    if(allowed){
+      res.render('Player', {
+        name: req.cookies.name,
         page: {
             title: 'Player'
         },
         global: globalInfo,
-        stream: playerStreamInfo[ req.session.user.name ]
-    });
+        stream: playerStreamInfo[ req.cookies.name ]
+      });
+    } else {
+      console.log('Redirected: need to be logged in')
+      res.status(401).redirect('/');
+    }
+  })
 });
 
 app.get('/player/:id/control', (req, res) => {
@@ -210,9 +217,9 @@ app.get('/player/:id/control', (req, res) => {
 
 app.get('/player/stream', (req, res) => {
 
-  if( req.session.user ) {
+  if( req.cookie.name ) {
 
-    res.status(200).send( playerStreamInfo[ req.session.user.name ] )
+    res.status(200).send( playerStreamInfo[ req.cookie.name ] )
     return
   }
 
@@ -226,28 +233,15 @@ app.get('/player/:id/stream', (req, res) => {
 
 app.post('/login', function (req, res, next) {
     if (!req.body) return res.sendStatus(400)
-    authenticate(req.body.username, req.body.password, function(err, user){
-      if (err) return next(err)
+    authenticate(req.body.username, req.body.password, function(user){
       if (user) {
-        // Regenerate session when signing in
-        // to prevent fixation
-        req.session.regenerate(function(){
-        // Store the user's primary key
-        // in the session store to be retrieved,
-        // or in this case the entire user object
-        req.session.user = user;
-        req.session.success = 'Authenticated as ' + user.name
-        + ' click to <a href="/logout">logout</a>. '
-        + ' You may now access <a href="/restricted">/restricted</a>.';
-        //Redirect to page user signed in on
-        res.redirect(req.headers.referer.substring(req.headers.referer.lastIndexOf('/')));
-    });
-        } else {
-            req.session.error = 'Authentication failed, please check your '
-            + ' username and password.'
-            + ' (use "tj" and "foobar")';
-            res.redirect('/');
-        }
+          res.cookie('name', req.body.username, {maxAge: 360000});
+          res.redirect(req.headers.referer.substring(req.headers.referer.lastIndexOf('/')));
+      } else {
+          //req.session.error = 'Authentication failed, please check your '
+          //+ ' username and password.';
+          res.redirect('/');
+      }
     });
 });
 
@@ -277,9 +271,9 @@ app.post('/upload/:id/stream', (req, res) => {
 
 app.post('/upload/player/control', (req, res) => {
 
-  if( req.session.user && req.session.user.name ) {
+  if( req.cookies.name ) {
 
-    playerControlInfo[ req.session.user.name ] = req.body['axes'] 
+    playerControlInfo[ req.cookies.name ] = req.body['axes'] 
 
     return res.status(200).send({})
   }
@@ -291,7 +285,7 @@ app.post('/upload/player/control', (req, res) => {
 //--------------------------------------------------
 
 server.listen(process.env.PORT || 3000, () => {
-  console.log('Server listening on port 3000');
+  console.log('Server listening on port ' + process.env.PORT);
 });
 
 //SOCKETS

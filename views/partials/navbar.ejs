@@ -37,9 +37,9 @@
             <% if(endpoint != '/player' && endpoint != '/admin'){ %>
                 <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
             <% } else if(name) { %>
-                <% if(endpoint == '/player' && name.name != 'p3'){ %>
+                <% if(endpoint == '/player' && name != 'p3'){ %>
                     <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
-                <% } else if(endpoint == '/admin' && name.name == 'p3'){ %>
+                <% } else if(endpoint == '/admin' && name == 'p3'){ %>
                     <a class="navbar-buttons racing-sans deactivated" href="<%= endpoint %>"></a>
                 <% } %>
             <% } %>
@@ -50,7 +50,7 @@
         <% if(name){ %>
 
             <a id="navbar-dropdown" class="navbar-buttons racing-sans" href="logout">
-                <%= name.name %> - Logout
+                <%= name %> - Logout
             </a>
 
         <% } %>

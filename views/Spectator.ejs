@@ -9,7 +9,7 @@
     </iframe>
 
     <script>var isAdmin = false; //Flag for admin privileges, initially set to be false</script>
-    <% if(name && name.name == 'p3'){ %>
+    <% if(isAdmin){ %>
       <script>isAdmin = true; //After session value is passed, set flag if user has the correct username</script>
     <% } %>
     <div id="chat">
