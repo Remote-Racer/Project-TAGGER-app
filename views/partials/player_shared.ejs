@@ -21,25 +21,6 @@
     <ul id="game-list"></ul><br>
 </div>
 
-
-<div id="stream-container">
-    <!--
-    <div id="stream-overlay-menu">
-        <button onclick="window.location.href = 'logout'">Logout</button>
-        <button>Help</button>
-        <button id="stream-connect" onclick="streamPlay()">Connect to Stream</button>
-    </div>
-    -->
-    
-    <div id="stream-overlay">
-        <p>Logged in as <%= name %></p>
-        <p>This is the score area</p>
-    </div>
-
-    <canvas id="control-canvas"></canvas>
-    <img id="stream" src="data:image/png;base64,<%= stream.frame %>">
-</div>
-
 <div id="help-modal" class="modal">
     <div class="modal-content">
         <span class="close-button" onclick="toggleHelpModal()">&times;</span>

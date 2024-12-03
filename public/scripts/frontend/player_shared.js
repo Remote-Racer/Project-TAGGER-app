@@ -98,8 +98,8 @@ socket.on('gamesCount', function(data){
 //Enables the stream display when a request is sent by the server at the start of a game
 socket.on('enableCam', () => {
   //document.getElementById('player-status').style.display = 'none';
-  document.getElementById('stream-container').style.display = 'initial';
   document.getElementById('score-display').style.display = 'block';
+  document.getElementById('stream-container').style.display = 'initial';
 });
 
 //Stops clientside timer and replaces countdown with a pause indicator

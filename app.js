@@ -25,17 +25,6 @@ const e = require("express");
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
 
-/* app.use(function(req, res, next){
-  var err = req.session.error;
-  var msg = req.session.success;
-  delete req.session.error;
-  delete req.session.success;
-  res.locals.message = '';
-  if (err) res.locals.message = '<p class="msg error">' + err + '</p>';
-  if (msg) res.locals.message = '<p class="msg success">' + msg + '</p>';
-  next();
-}); */
-
 //AUTHENTICATION
 //--------------------------------------------------
 //User list
@@ -305,14 +294,8 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     if(socket.lobby != 0){
       gameServer.handleDisconnect(gameServer.gamesList[socket.lobby], socket.id);
-      for(var i in gameServer.gamesList[socket.lobby].playerList){
-        SOCKET_LIST[i].emit('pause');
-        SOCKET_LIST[i].emit('removePlayer', socket.id);
-      }
-      for(var j in gameServer.gamesList[socket.lobby].admins){
-        SOCKET_LIST[j].emit('pause');
-        SOCKET_LIST[j].emit('removePlayer', socket.id);
-      }
+      pushToLobby(socket.lobby,  'pause');
+      pushToLobby(socket.lobby, 'removePlayer', socket.id);
     }
     console.log('Client disconnected');
     delete SOCKET_LIST[socket.id];
@@ -348,16 +331,10 @@ io.on('connection', (socket) => {
         socket.emit('updateQueue');
       }
       if(Object.keys(gameServer.gamesList[data].playerList).length == 2){
-        for(var i in gameServer.gamesList[data].playerList){
-          SOCKET_LIST[i].emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].pauseTime]);
-          SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[data].score);
-          SOCKET_LIST[i].emit('enableCam');
-        }
-        for(var j in gameServer.gamesList[data].admins){
-          SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].pauseTime]);
-          SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[data].score);
-          SOCKET_LIST[j].emit('enableAdmin');
-        }
+        pushToLobby(data, 'updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].pauseTime])
+        pushToLobby(data, 'updateScore', gameServer.gamesList[data].score)
+        pushToLobby(data, 'enableCam')
+
         if(gameServer.gamesList[data].paused){
           gameServer.gamesList[data].paused = false;
         } else {
@@ -366,18 +343,8 @@ io.on('connection', (socket) => {
         gameServer.gamesList[data].startTime = Date.now();
         gameServer.gamesList[data].timer = setTimeout(function(){winRound(data, gameServer.gamesList[data].runner)}, gameServer.gamesList[data].pauseTime * 1000);
       }
-      for(var i in gameServer.gamesList[data].playerList){
-        if(i == socket.id){
-          for(var j in gameServer.gamesList[data].playerList){
-            SOCKET_LIST[j].emit('addPlayer', socket.id);
-          }
-        } else {
-          socket.emit('addPlayer', i);
-        }
-      }
-      for(var j in gameServer.gamesList[data].admins){
-        SOCKET_LIST[j].emit('addPlayer', socket.id);
-      }
+
+      pushToLobby(data, 'addPlayer', socket.id);
     } else {
       socket.emit('joinResponse', [2, -1]);
     }
@@ -393,9 +360,6 @@ io.on('connection', (socket) => {
       socket.lobby = data;
       socket.emit('joinResponse', [1, socket.lobby]);
       gameServer.joinAdmin([data, socket.id])
-      /* for(var i in gameServer.gamesList[data].playerList){
-        socket.emit('addPlayer', i);
-      } */
       if(Object.keys(gameServer.gamesList[data].playerList).length == 2){
         socket.emit('updateRound', [gameServer.gamesList[data].round, gameServer.gamesList[data].roundLength]);
         socket.emit('updateScore', gameServer.gamesList[data].score);
@@ -439,28 +403,18 @@ io.on('connection', (socket) => {
       var players = gameServer.gamesList[game].playerList
       var admins = gameServer.gamesList[game].admins
       var gameWinner = gameServer.endGame(game)
-      for(var i in players){
-        SOCKET_LIST[i].emit('updateScore', endScore);
-        SOCKET_LIST[i].emit('gameOver', [game, gameWinner]);
-        SOCKET_LIST[i].lobby = 0;
-      }
-      for(var k in admins){
-        SOCKET_LIST[k].emit('updateScore', endScore);
-        SOCKET_LIST[k].emit('gameOver', [game, gameWinner]);
-        SOCKET_LIST[k].lobby = 0;
-      }
+
+      pushToLobby(game, 'updateScore', endScore)
+      pushToLobby(game, 'gameOver', [game, gameWinner])
+      updateLobby(game)
+
       for(var j in SOCKET_LIST){
         SOCKET_LIST[j].emit('removeGame', game);
       }
     } else {
-      for(var i in gameServer.gamesList[game].playerList){
-        SOCKET_LIST[i].emit('updateRound', [gameServer.gamesList[game].round, gameServer.gamesList[game].roundLength]);
-        SOCKET_LIST[i].emit('updateScore', gameServer.gamesList[game].score);
-      }
-      for(var j in gameServer.gamesList[game].admins){
-        SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[game].round, gameServer.gamesList[game].roundLength]);
-        SOCKET_LIST[j].emit('updateScore', gameServer.gamesList[game].score);
-      }
+      pushToLobby(game, 'updateRound', [gameServer.gamesList[game].round, gameServer.gamesList[game].roundLength]);
+      pushToLobby(game, 'updateScore', gameServer.gamesList[game].score);
+
       gameServer.gamesList[game].timer = setTimeout(function(){winRound(game, gameServer.gamesList[game].runner)}, gameServer.gamesList[game].roundLength * 1000);
     }
   }
@@ -479,12 +433,7 @@ io.on('connection', (socket) => {
   socket.on('pauseGame', () => {
     if(socket.lobby != 0 && !gameServer.gamesList[socket.lobby].paused){
       gameServer.pauseGame(gameServer.gamesList[socket.lobby]);
-      for(var i in gameServer.gamesList[socket.lobby].playerList){
-        SOCKET_LIST[i].emit('pause');
-      }
-      for(var j in gameServer.gamesList[socket.lobby].admins){
-        SOCKET_LIST[j].emit('pause');
-      }
+      pushToLobby(socket.lobby, 'pause')
     }
   });
 
@@ -495,12 +444,8 @@ io.on('connection', (socket) => {
       gameServer.gamesList[socket.lobby].startTime = Date.now();
       gameServer.gamesList[socket.lobby].timer = setTimeout(function(){winRound(socket.lobby, gameServer.gamesList[socket.lobby].runner)}, gameServer.gamesList[socket.lobby].pauseTime * 1000);
       gameServer.gamesList[socket.lobby].paused = false;
-      for(var i in gameServer.gamesList[socket.lobby].playerList){
-        SOCKET_LIST[i].emit('updateRound', [gameServer.gamesList[socket.lobby].round, gameServer.gamesList[socket.lobby].pauseTime]);
-      }
-      for(var j in gameServer.gamesList[socket.lobby].admins){
-        SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[socket.lobby].round, gameServer.gamesList[socket.lobby].pauseTime]);
-      }
+
+      pushToLobby(socket.lobby, 'updateRound', [gameServer.gamesList[socket.lobby].round, gameServer.gamesList[socket.lobby].pauseTime])
     }
   });
 
@@ -514,13 +459,26 @@ io.on('connection', (socket) => {
       gameServer.gamesList[socket.lobby].startTime = Date.now();
       gameServer.gamesList[socket.lobby].timer = setTimeout(function(){winRound(socket.lobby, gameServer.gamesList[socket.lobby].runner)}, data * 1000);
       gameServer.gamesList[socket.lobby].paused = false;
-      for(var i in gameServer.gamesList[socket.lobby].playerList){
-        SOCKET_LIST[i].emit('updateRound', [gameServer.gamesList[socket.lobby].round, data]);
-      }
-      for(var j in gameServer.gamesList[socket.lobby].admins){
-        SOCKET_LIST[j].emit('updateRound', [gameServer.gamesList[socket.lobby].round, data]);
-      }
+
+      pushToLobby(socket.lobby, 'updateRound', [gameServer.gamesList[socket.lobby].round, data])
     }
   });
 
+  function pushToLobby(lobby, command, params){
+    for(var i in gameServer.gamesList[lobby].playerList){
+      SOCKET_LIST[i].emit(command, params);
+    }
+    for(var j in gameServer.gamesList[lobby].admins){
+      SOCKET_LIST[j].emit(command, params);
+    }
+  }
+
+  function updateLobby(lobby){
+    for(var i in gameServer.gamesList[lobby].playerList){
+      SOCKET_LIST[i].lobby = 0;
+    }
+    for(var j in gameServer.gamesList[lobby].admins){
+      SOCKET_LIST[i].lobby = 0;
+    }
+  }
 });

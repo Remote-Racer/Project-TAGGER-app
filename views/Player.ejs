@@ -2,6 +2,16 @@
 <body>
     <%- include('partials/navbar') %>
     <%- include('partials/player_shared') %>
+
+    <div id="stream-container">      
+        <div id="stream-overlay">
+            <p>Logged in as <%= name %></p>
+            <p>This is the score area</p>
+        </div>
+    
+        <canvas id="control-canvas"></canvas>
+        <img id="stream" src="data:image/png;base64,<%= stream.frame %>">
+    </div>
     
 </body>
 
