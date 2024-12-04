@@ -1,5 +1,5 @@
 # Project-TAGGER-app
-<image src='public/assets/Remote_Racer_Icon.svg' style='width:40%; margin:auto;'></image>
+<image src='public/assets/Remote_Racer_Icon.svg' style='width:40%; margin-left:30%;'></image>
 
 ## Proof-of-Concept Application for Real-Time Gaming with Remote Hardware
 Project TAGGER is a project developed for the capstone project for CSCE 483 in the Fall of 2024 in the Department of Computer Science and Engineering at Texas A&M. The project was developed to create a proof-of-concept got integrating live hardware into a gaming application by developing a control system for purpose-built RC vehicles to be operated by clients via a web application handling user management and game logic. This repository contains the source code for the application of the project, developed in the NodeJS framework with ExpressJS for dynamic content.
